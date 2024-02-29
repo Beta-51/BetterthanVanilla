@@ -1,4 +1,4 @@
-package turniplabs.examplemod;
+package lusiiplugin;
 
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;

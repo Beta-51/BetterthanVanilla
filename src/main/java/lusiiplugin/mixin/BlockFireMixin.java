@@ -1,4 +1,4 @@
-package turniplabs.examplemod.mixin;
+package lusiiplugin.mixin;
 
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockFire;

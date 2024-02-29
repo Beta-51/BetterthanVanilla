@@ -1,4 +1,4 @@
-package turniplabs.examplemod.mixin;
+package lusiiplugin.mixin;
 
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;

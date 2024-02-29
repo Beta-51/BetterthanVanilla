@@ -19,20 +19,20 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-			"turniplabs.examplemod.ExampleMod"
+			"lusiiplugin.LusiiPlugin"
     ],
 		"beforeGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"lusiiplugin.LusiiPlugin"
 		],
 		"afterGameStart": [
-			"turniplabs.examplemod.ExampleMod"
+			"lusiiplugin.LusiiPlugin"
 		],
 		"recipesReady": [
-			"turniplabs.examplemod.ExampleMod"
+			"lusiiplugin.LusiiPlugin"
 		]
 	},
   "mixins": [
-      "examplemod.mixins.json"
+      "lusiiplugin.mixins.json"
   ],
 
   "depends": {

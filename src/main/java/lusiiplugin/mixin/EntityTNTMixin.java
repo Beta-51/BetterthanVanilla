@@ -1,4 +1,4 @@
-package turniplabs.examplemod.mixin;
+package lusiiplugin.mixin;
 
 import com.mojang.nbt.CompoundTag;
 import net.minecraft.core.entity.Entity;

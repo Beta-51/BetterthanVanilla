@@ -1,4 +1,4 @@
-package turniplabs.examplemod;
+package lusiiplugin;
 
 import net.fabricmc.api.ModInitializer;
 import org.slf4j.Logger;
@@ -7,7 +7,7 @@ import turniplabs.halplibe.util.GameStartEntrypoint;
 import turniplabs.halplibe.util.RecipeEntrypoint;
 
 
-public class ExampleMod implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
+public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
     public static final String MOD_ID = "lusiiplugincreative";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	@Override

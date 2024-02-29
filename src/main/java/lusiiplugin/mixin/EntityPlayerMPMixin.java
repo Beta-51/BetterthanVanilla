@@ -1,4 +1,4 @@
-package turniplabs.examplemod.mixin;
+package lusiiplugin.mixin;
 
 
 import net.minecraft.core.crafting.ICrafting;

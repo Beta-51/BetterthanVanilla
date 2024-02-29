@@ -1,4 +1,4 @@
-package turniplabs.examplemod;
+package lusiiplugin;
 
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.entity.TileEntityChest;

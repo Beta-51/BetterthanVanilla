@@ -1,4 +1,4 @@
-package turniplabs.examplemod;
+package lusiiplugin;
 
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.Item;
