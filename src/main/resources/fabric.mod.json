@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "lusiiplugincreative",
+  "version": "1.2",
+
+  "name": "Lusii's Server Plugin",
+  "description": "The plugin that makes Lusii's server complete.",
+  "authors": [
+    "Lusii"
+  ],
+  "contact": {
+    "homepage": "",
+    "sources": ""
+  },
+
+	"icon": "icon.png",
+  "license": "CC0-1.0",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+			"turniplabs.examplemod.ExampleMod"
+    ],
+		"beforeGameStart": [
+			"turniplabs.examplemod.ExampleMod"
+		],
+		"afterGameStart": [
+			"turniplabs.examplemod.ExampleMod"
+		],
+		"recipesReady": [
+			"turniplabs.examplemod.ExampleMod"
+		]
+	},
+  "mixins": [
+      "examplemod.mixins.json"
+  ],
+
+  "depends": {
+		"minecraft": "~7.1-beta.1",
+    "fabricloader": ">=0.13.3"
+  },
+  "suggests": {
+  }
+}
