@@ -1,5 +1,6 @@
 package lusiiplugin.mixin;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.client.entity.player.EntityPlayerSP;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.Item;
@@ -58,7 +59,7 @@ public class GiveCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return false;
+		return LusiiPlugin.giveCommand;
 	}
 
 	@Overwrite

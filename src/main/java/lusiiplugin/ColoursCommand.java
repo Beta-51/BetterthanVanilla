@@ -32,10 +32,6 @@ public class ColoursCommand extends Command {
 		sender.sendMessage("$$n outputs §nUnderline");
 		sender.sendMessage("$$o outputs §oItalic");
 		sender.sendMessage("$$r §3resets colour to §rnormal!");
-
-
-
-
 		return true;
 	}
 //

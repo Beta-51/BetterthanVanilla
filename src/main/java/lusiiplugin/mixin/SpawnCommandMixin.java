@@ -1,5 +1,6 @@
 package lusiiplugin.mixin;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
 import net.minecraft.core.net.command.commands.SpawnCommand;
@@ -38,7 +39,7 @@ public class SpawnCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return false;
+		return LusiiPlugin.spawnCommand;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

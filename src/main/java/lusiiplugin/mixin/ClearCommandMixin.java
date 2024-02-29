@@ -1,5 +1,6 @@
 package lusiiplugin.mixin;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.*;
@@ -38,7 +39,7 @@ public class ClearCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return false;
+		return LusiiPlugin.clearCommand;
 	}
 
 	@Overwrite

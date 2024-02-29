@@ -1,5 +1,6 @@
 package lusiiplugin.mixin;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandError;
@@ -51,7 +52,7 @@ public class GamemodeCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return false;
+		return LusiiPlugin.gamemodeAll;
 	}
 	@Shadow
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

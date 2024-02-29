@@ -1,5 +1,6 @@
 package lusiiplugin.mixin;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.HitResult;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
@@ -11,6 +12,7 @@ import net.minecraft.core.enums.EnumSignPicture;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.ICommandListener;
+import net.minecraft.core.net.NetworkManager;
 import net.minecraft.core.net.command.TextFormatting;
 import net.minecraft.core.net.handler.NetHandler;
 import net.minecraft.core.net.packet.*;
@@ -19,6 +21,7 @@ import net.minecraft.core.util.helper.AES;
 import net.minecraft.core.util.helper.ChatAllowedCharacters;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.MathHelper;
+import net.minecraft.core.util.phys.AABB;
 import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.core.world.chunk.ChunkCoordinates;
 import net.minecraft.server.MinecraftServer;
@@ -42,13 +45,18 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
     @Shadow
 	public static Logger logger = Logger.getLogger("Minecraft");
-	@Shadow
+	public NetworkManager netManager;
+	public boolean connectionClosed = false;
 	private MinecraftServer mcServer;
-	@Shadow
 	private EntityPlayerMP playerEntity;
-	@Shadow
-	private boolean hasMoved;
-	@Shadow
+	private int field_15_f;
+	private int field_22004_g;
+	private int playerInAirTime;
+	private boolean field_22003_h;
+	private double lastPosX;
+	private double lastPosY;
+	private double lastPosZ;
+	private boolean hasMoved = true;
 	private Map field_10_k = new HashMap();
 
 	@Shadow
@@ -85,7 +93,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 			if (canAttack) {
 				if (packet.isLeftClick == 0) {
-					if (targetEntity instanceof EntityPlayer && this.playerEntity.inventory.getCurrentItem() == null && targetEntity.vehicle != this.playerEntity) {
+					if (targetEntity instanceof EntityPlayer && this.playerEntity.inventory.getCurrentItem() == null && targetEntity.vehicle != this.playerEntity && LusiiPlugin.headSit) {
 						this.playerEntity.startRiding(targetEntity);
 						this.playerEntity.collision = false;
 						this.playerEntity.noPhysics = true;
@@ -102,10 +110,177 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 
 
+	public void handleFlying(Packet10Flying packet) {
+		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
+		this.field_22003_h = true;
+		double d1;
+		if (!this.hasMoved) {
+			d1 = packet.yPosition - this.lastPosY;
+			if (packet.xPosition == this.lastPosX && d1 * d1 < 0.01 && packet.zPosition == this.lastPosZ) {
+				this.hasMoved = true;
+			}
+		}
 
+		if (this.hasMoved) {
+			double newPosX;
+			double newPosY;
+			double newPosZ;
+			double dx;
+			if (this.playerEntity.vehicle != null) {
+				float f = this.playerEntity.yRot;
+				float f1 = this.playerEntity.xRot;
+				this.playerEntity.vehicle.positionRider();
+				newPosX = this.playerEntity.x;
+				newPosY = this.playerEntity.y;
+				newPosZ = this.playerEntity.z;
+				double d8 = 0.0;
+				dx = 0.0;
+				if (packet.rotating) {
+					f = packet.yaw;
+					f1 = packet.pitch;
+				}
 
+				if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
+					d8 = packet.xPosition;
+					dx = packet.zPosition;
+				}
 
+				this.playerEntity.onGround = packet.onGround;
+				this.playerEntity.onUpdateEntity();
+				this.playerEntity.move(d8, 0.0, dx);
+				this.playerEntity.absMoveTo(newPosX, newPosY, newPosZ, f, f1);
+				this.playerEntity.xd = d8;
+				this.playerEntity.zd = dx;
+				if (this.playerEntity.vehicle != null && this.playerEntity.vehicle instanceof Entity) {
+					worldserver.func_12017_b((Entity)this.playerEntity.vehicle, true);
+				}
 
+				if (this.playerEntity.vehicle != null) {
+					this.playerEntity.vehicle.positionRider();
+				}
+
+				this.mcServer.playerList.func_613_b(this.playerEntity);
+				this.lastPosX = this.playerEntity.x;
+				this.lastPosY = this.playerEntity.y;
+				this.lastPosZ = this.playerEntity.z;
+				worldserver.updateEntity(this.playerEntity);
+				return;
+			}
+
+			if (this.playerEntity.isPlayerSleeping()) {
+				this.playerEntity.onUpdateEntity();
+				this.playerEntity.absMoveTo(this.lastPosX, this.lastPosY, this.lastPosZ, this.playerEntity.yRot, this.playerEntity.xRot);
+				worldserver.updateEntity(this.playerEntity);
+				return;
+			}
+
+			d1 = this.playerEntity.y;
+			this.lastPosX = this.playerEntity.x;
+			this.lastPosY = this.playerEntity.y;
+			this.lastPosZ = this.playerEntity.z;
+			newPosX = this.playerEntity.x;
+			newPosY = this.playerEntity.y;
+			newPosZ = this.playerEntity.z;
+			float f2 = this.playerEntity.yRot;
+			float f3 = this.playerEntity.xRot;
+			if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
+				packet.moving = false;
+			}
+
+			if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
+				packet.moving = false;
+			}
+
+			if (packet.moving) {
+				newPosX = packet.xPosition;
+				newPosY = packet.yPosition;
+				newPosZ = packet.zPosition;
+				dx = packet.stance - packet.yPosition;
+				if (!this.playerEntity.isPlayerSleeping() && (dx > 1.65 || dx < 0.1)) {
+					this.kickPlayer("Illegal stance");
+					logger.warn(this.playerEntity.username + " had an illegal stance: " + dx);
+					return;
+				}
+
+				if (Math.abs(packet.xPosition) > 3.2E7 || Math.abs(packet.zPosition) > 3.2E7) {
+					this.playerEntity.resetPos();
+					this.kickPlayer("Illegal position");
+					return;
+				}
+			}
+
+			if (packet.rotating) {
+				f2 = packet.yaw;
+				f3 = packet.pitch;
+			}
+
+			this.playerEntity.onUpdateEntity();
+			this.playerEntity.ySlideOffset = 0.0F;
+			this.playerEntity.absMoveTo(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
+			if (!this.hasMoved) {
+				return;
+			}
+
+			dx = newPosX - this.playerEntity.x;
+			double dy = newPosY - this.playerEntity.y;
+			double dz = newPosZ - this.playerEntity.z;
+			double d14 = dx * dx + dy * dy + dz * dz;
+			if (d14 > 100.0) {
+				logger.warn(this.playerEntity.username + " moved too quickly!");
+				this.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
+				//this.kickPlayer("You moved too quickly :( (Hacking?)");
+				return;
+			}
+
+			float f4 = 0.0625F;
+			boolean flag = worldserver.getCubes(this.playerEntity, this.playerEntity.bb.copy().getInsetBoundingBox((double)f4, (double)f4, (double)f4)).size() == 0;
+			this.playerEntity.move(dx, dy, dz);
+			dx = newPosX - this.playerEntity.x;
+			dy = newPosY - this.playerEntity.y;
+			if (dy > -0.5 || dy < 0.5) {
+				dy = 0.0;
+			}
+
+			dz = newPosZ - this.playerEntity.z;
+			d14 = dx * dx + dy * dy + dz * dz;
+			boolean flag1 = false;
+			if (!this.playerEntity.getGamemode().canPlayerFly() && d14 > 0.0625 && !this.playerEntity.isPlayerSleeping()) {
+				flag1 = true;
+				logger.warn(this.playerEntity.username + " moved wrongly!");
+				System.out.println("Got position " + newPosX + ", " + newPosY + ", " + newPosZ);
+				System.out.println("Expected " + this.playerEntity.x + ", " + this.playerEntity.y + ", " + this.playerEntity.z);
+			}
+
+			this.playerEntity.absMoveTo(newPosX, newPosY, newPosZ, f2, f3);
+			boolean flag2 = worldserver.getCubes(this.playerEntity, this.playerEntity.bb.copy().getInsetBoundingBox((double)f4, (double)f4, (double)f4)).size() == 0;
+			if (!this.playerEntity.getGamemode().canPlayerFly() && flag && (flag1 || !flag2) && !this.playerEntity.isPlayerSleeping()) {
+				this.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
+				return;
+			}
+
+			AABB axisalignedbb = this.playerEntity.bb.copy().expand((double)f4, (double)f4, (double)f4).addCoord(0.0, -0.55, 0.0);
+			if (!this.playerEntity.getGamemode().canPlayerFly() && !this.mcServer.allowFlight && !worldserver.getIsAnySolidGround(axisalignedbb)) {
+				if (dy > -0.03125) {
+					++this.playerInAirTime;
+					if (this.playerInAirTime > 80) {
+						logger.warn(this.playerEntity.username + " was kicked for floating too long!");
+						this.kickPlayer("Flying is not enabled on this server");
+						return;
+					}
+				}
+			} else {
+				this.playerInAirTime = 0;
+			}
+
+			this.playerEntity.onGround = packet.onGround;
+			this.mcServer.playerList.func_613_b(this.playerEntity);
+			this.playerEntity.handleFalling(this.playerEntity.y - d1, packet.onGround);
+		}
+
+	}
+	@Shadow
+	private void teleportAndRotate(double lastPosX, double lastPosY, double lastPosZ, float f2, float f3) {
+	}
 
 
 	@Overwrite
@@ -113,33 +288,35 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
 		if (worldserver.isBlockLoaded(packet.xPosition, packet.yPosition, packet.zPosition)) {
 			TileEntity tileentity = worldserver.getBlockTileEntity(packet.xPosition, packet.yPosition, packet.zPosition);
-			if (tileentity instanceof TileEntitySign && !((TileEntitySign) tileentity).getIsEditable()) {
-				TileEntitySign tileentitysign = (TileEntitySign)tileentity;
-				worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
+			if (tileentity instanceof TileEntitySign) {
+				if (!((TileEntitySign) tileentity).getIsEditable() && LusiiPlugin.signEdit) {
+					TileEntitySign tileentitysign = (TileEntitySign) tileentity;
+					worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
 
-				if (this.playerEntity.distanceToSqr(tileentitysign.x + 0.5,tileentitysign.y + 0.5,tileentitysign.z + 0.5) > 50.0) {
-					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"Too far away!");
-					System.out.println(this.playerEntity.username + " tried to edit a sign at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5 + " but was too far away.");
+					if (this.playerEntity.distanceToSqr(tileentitysign.x + 0.5, tileentitysign.y + 0.5, tileentitysign.z + 0.5) > 50.0) {
+						this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "Too far away!");
+						System.out.println(this.playerEntity.username + " tried to edit a sign at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5 + " but was too far away.");
+						return;
+					}
+
+					for (int i = 0; i < 4; i++) {
+						if (!Objects.equals(packet.signLines[i], "")) {
+							System.out.println("Original line" + i + ": \"" + tileentitysign.signText[i] + "\" Edited to: \"" + packet.signLines[i] + "\" by " + this.playerEntity.username + " at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5);
+							tileentitysign.signText[i] = packet.signLines[i];
+						}
+					}
+
+					if (packet.picture != tileentitysign.getPicture().getId()) {
+						tileentitysign.setPicture(EnumSignPicture.values()[packet.picture]);
+					}
+					if (packet.color != tileentitysign.getColor().id) {
+						tileentitysign.setColor(TextFormatting.FORMATTINGS[packet.color]);
+					}
+
+
+					worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
 					return;
 				}
-
-				for (int i = 0; i < 4; i++) {
-					if (!Objects.equals(packet.signLines[i], "")) {
-						System.out.println("Original line"+i+": \""+tileentitysign.signText[i]+"\" Edited to: \""+packet.signLines[i]+"\" by " + this.playerEntity.username + " at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5);
-						tileentitysign.signText[i] = packet.signLines[i];
-					}
-				}
-
-				if (packet.picture != tileentitysign.getPicture().getId()) {
-					tileentitysign.setPicture(EnumSignPicture.values()[packet.picture]);
-				}
-				if (packet.color != tileentitysign.getColor().id) {
-					tileentitysign.setColor(TextFormatting.FORMATTINGS[packet.color]);
-				}
-
-
-				worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
-				return;
 			}
 
 			int l;
@@ -232,7 +409,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				this.handleSlashCommand(s);
 			} else {
 				s = ChatEmotes.process(s);
-				if (s.startsWith(">")) {
+				if (s.startsWith(">") && LusiiPlugin.greenText) {
 					if (this.playerEntity.isOperator()) {
 						s = TextFormatting.RED + TextFormatting.BOLD.toString() + "[OP] " + TextFormatting.RESET + "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.LIME + s;
 					} else {
@@ -243,10 +420,13 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				} else {
 					s = "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.WHITE + s;
 				}
-				s = s.replace("$$","§");
-				if (!this.playerEntity.isOperator()) {
-					s = s.replace("§k", "$$k");
-					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"§4§lHey!§r You may not use obfuscated text!");
+				{
+					if (LusiiPlugin.colourChat)
+						s = s.replace("$$", "§");
+					if (!this.playerEntity.isOperator()) {
+						s = s.replace("§k", "$$k");
+						this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§4§lHey!§r You may not use obfuscated text!");
+					}
 				}
 
 				System.out.println(s);
@@ -324,15 +504,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 
 
-	public Integer[] debugStick(Block block) {
-		if (block.equals(Block.algae)) {
-			return new Integer[]{0};
-		} else if (block.equals(Block.bed)) {
-			return new Integer[]{0, 1, 2, 3};
-		}
-		return new Integer[0];
-	}
-
 	@Overwrite
 	public void handlePlace(Packet15Place packet) {
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
@@ -344,22 +515,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 			return;
 		}
 
-		if (itemstack == Item.stick.getDefaultStack()) {
-			if (itemstack.getMetadata() == 1) {
-				Block block = worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition);
-				Integer blockMeta = worldserver.getBlockMetadata(packet.xPosition, packet.yPosition, packet.zPosition);
-				Integer length = debugStick(worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition)).length;
-				for (int i = 0; i < debugStick(worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition)).length; i++) { // scroll through numbers
-					if (Objects.equals(debugStick(worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition))[i], blockMeta)) { // if they match do next step
-						if (i < debugStick(worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition)).length) {
-							debugStick(worldserver.getBlock(packet.xPosition, packet.yPosition, packet.zPosition));
-						}
-
-
-					}
-				}
-			}
-		}
 
 		if (itemstack != null) {
 			if (itemstack == Item.dye.getDefaultStack()) {

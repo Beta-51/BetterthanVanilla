@@ -25,19 +25,32 @@ import java.util.Set;
 
 @Mixin(value = EntityPlayerMP.class, remap = false)
 public class EntityPlayerMPMixin extends EntityPlayer implements ICrafting {
+	@Shadow
 
 	public NetServerHandler playerNetServerHandler;
+	@Shadow
 	public MinecraftServer mcServer;
+	@Shadow
 	public PlayerController playerController;
+	@Shadow
 	public double field_9155_d;
+	@Shadow
 	public double field_9154_e;
+	@Shadow
 	public List loadedChunks = new LinkedList();
+	@Shadow
 	public Set field_420_ah = new HashSet();
+	@Shadow
 	private int lastHealth = -99999999;
+	@Shadow
 	private int lastScore = -99999999;
+	@Shadow
 	private int ticksOfInvuln = 60;
+	@Shadow
 	private ItemStack[] playerInventory = new ItemStack[]{null, null, null, null, null};
+	@Shadow
 	private int currentWindowId = 0;
+	@Shadow
 	public boolean isChangingQuantityOnly;
 
 
