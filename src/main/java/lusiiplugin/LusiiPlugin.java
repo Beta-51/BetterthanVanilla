@@ -15,7 +15,7 @@ import java.io.IOException;
 
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
-    public static final String MOD_ID = "lusiiplugincreative";
+    public static final String MOD_ID = "betterthanvanilla";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final TomlConfigHandler CONFIG;
 	static {
@@ -63,7 +63,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static boolean clearCommand;
 	@Override
     public void onInitialize() {
-        LOGGER.info("Lusii's Creative Plugin initialized.");
+        LOGGER.info("Better than Vanilla initialized.");
     }
 
 	@Override
