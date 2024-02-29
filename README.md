@@ -1,6 +1,6 @@
 # Example Mod
 
-Template for making Babric mods for BTA!
+Lusii's plugin for her server, but also available for everyone!
 
 **Note: *DO NOT fork this repository unless you want to contribute!***
 
