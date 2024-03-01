@@ -1,12 +1,23 @@
 package lusiiplugin;
 
+import com.mojang.nbt.CompoundTag;
+import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.core.entity.EntityLiving;
+import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.item.Item;
+import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
+import org.apache.commons.lang3.mutable.Mutable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+
+import static net.minecraft.core.net.command.commands.GiveCommand.givePlayerItem;
 
 public class SethomeCommand extends Command {
 	public SethomeCommand() {
@@ -21,30 +32,23 @@ public class SethomeCommand extends Command {
 		String subdirectory = "player-homes";
 		List<String> results = new ArrayList<String>();
 		File[] files = new File(subdirectory).listFiles();
-
-		try {
-			for (File file : files) {
-				if (file.isFile()) {
-					if (file.getName().startsWith(sender.getPlayer().username)) {
-						if (file.getName().equals(sender.getPlayer().username + ".txt")) {
-							results.add("home");
-						} else {
-							results.add(file.getName().replace(".txt", "").replaceFirst(sender.getPlayer().username, ""));
-						}
+		for (File file : files) {
+			if (file.isFile()) {
+				if (file.getName().startsWith(sender.getPlayer().username)) {
+					if (file.getName().equals(sender.getPlayer().username + ".txt")) {
+						results.add("home");
+					} else {
+						results.add(file.getName().replace(".txt", "").replaceFirst(sender.getPlayer().username, ""));
 					}
 				}
 			}
-		} catch (Exception e) {
-			throw new RuntimeException(e);
 		}
-		int size = results.size();
 
 		if (args.length == 0 || builder.toString().equals("home")) {
 			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
 			File file = new File(filePath);
 
-
-			if (!file.exists() && size < LusiiPlugin.maxHomes) {
+			if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
 				LusiiPlugin.logFile(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username);
 				sender.sendMessage("§4Created home!");
 				return true;
@@ -58,7 +62,7 @@ public class SethomeCommand extends Command {
 		}
 		String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
 		File file = new File(filePath);
-		if (!file.exists() && size < LusiiPlugin.maxHomes) {
+		if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
 			LusiiPlugin.logFile(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username + builder);
 			sender.sendMessage("§4Created home " + builder + "!");
 			return true;

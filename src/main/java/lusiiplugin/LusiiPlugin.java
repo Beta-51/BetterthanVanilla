@@ -1,6 +1,7 @@
 package lusiiplugin;
 
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.net.PropertyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,6 +64,15 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static boolean clearCommand;
 	@Override
     public void onInitialize() {
+
+		String subdirectory = "player-homes";
+
+        // Create the subdirectory if it doesn't exist
+		File directory = new File(subdirectory);
+		if (!directory.exists()) {
+			directory.mkdirs(); // Create the directory and its parent directories if necessary
+		}
+
         LOGGER.info("Better than Vanilla initialized.");
     }
 

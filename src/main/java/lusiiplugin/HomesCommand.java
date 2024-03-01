@@ -37,7 +37,7 @@ public class HomesCommand extends Command {
 		theResults = theResults.replace("]", "");
 		sender.sendMessage("§4Homes: §r" + theResults);
 		return true;
-		}
+	}
 
 
 

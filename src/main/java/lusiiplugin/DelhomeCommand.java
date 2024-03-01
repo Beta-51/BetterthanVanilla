@@ -26,7 +26,7 @@ public class DelhomeCommand extends Command {
 				return true;
 			}
 			sender.sendMessage("§4You do not have a home set!");
-			return false;
+			return true;
 		}
 		String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
 		File file = new File(filePath);
@@ -36,8 +36,8 @@ public class DelhomeCommand extends Command {
 			return true;
 		}
 		sender.sendMessage("§4You do not have a home named " + builder + "!");
-		return false;
-		}
+		return true;
+	}
 
 
 

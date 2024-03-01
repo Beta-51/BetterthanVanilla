@@ -42,6 +42,7 @@ public class InfoCommand extends Command {
 				myWriter.write("§3Thanks for installing lusii's plugin!" + "\n");
 				myWriter.write("§3this is an automatically generated message" + "\n");
 				myWriter.write("§3and you may customize it in the config folder!" + "\n");
+				myWriter.write("§3Once you have modified this file re-run §l/info§3!");
 			myWriter.close();
 			} catch (IOException e) {
 				throw new RuntimeException(e);
@@ -74,7 +75,7 @@ public class InfoCommand extends Command {
 
 	private List<String> readTxtLines() {
 		String subdirectory = "config";
-		String filePath = subdirectory + File.separator + "LusiiPluginInfoMessage" + ".txt";
+		String filePath = subdirectory + File.separator + "BetterThanVanillaInfo" + ".txt";
 		File file = new File(filePath);
 		if (!file.exists()) {
 			return null;
