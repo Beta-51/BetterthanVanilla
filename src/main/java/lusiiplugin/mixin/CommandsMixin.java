@@ -28,6 +28,7 @@ public final class CommandsMixin {
 			commands.add(new DelhomeCommand());
 			commands.add(new HomeCommand());
 			commands.add(new HomesCommand());
+			commands.add(new RulesCommand());
 
 	}
 }
