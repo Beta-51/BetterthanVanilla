@@ -39,7 +39,7 @@ public class SpawnCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.spawnCommand;
+		return !LusiiPlugin.spawnCommand;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

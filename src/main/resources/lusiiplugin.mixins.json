@@ -16,7 +16,8 @@
     "BlockFireMixin",
     "EntityArrowMixin",
     "EntityFireballMixin",
-    "EntityPlayerMixin"
+    "EntityPlayerMixin",
+    "BlockBedMixin"
   ],
   "client": [
   ],

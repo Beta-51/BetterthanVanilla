@@ -24,6 +24,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addCategory("WorldUtils");
 		toml.addEntry("WorldUtils.StaticFire", "Static fire (Fire does not spread, and does not delete blocks).", false);
 		toml.addEntry("WorldUtils.DisableTNT", "Removes all PrimedTNT entities the moment they tick, and prevents TNT from being ignited.", false);
+		toml.addEntry("WorldUtils.DisableBedExplosions", "Remove explosions from beds in non-respawn dimensions.", false);
 		toml.addCategory("Commands");
 		toml.addEntry("Commands.Give", "Let non-opped players use /give.", false);
 		toml.addEntry("Commands.Home", "Let non-opped players use /home commands.", true);
@@ -39,6 +40,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		CONFIG = new TomlConfigHandler(MOD_ID, toml);
 		staticFire = CONFIG.getBoolean("WorldUtils.StaticFire");
 		disableTNT = CONFIG.getBoolean("WorldUtils.DisableTNT");
+		disableBedExplosion = CONFIG.getBoolean("WorldUtils.DisableBedExplosions");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
 		homeCommand = CONFIG.getBoolean("Commands.Home");
 		maxHomes = CONFIG.getInt("Commands.HomeLimit");
@@ -51,6 +53,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		greenText = CONFIG.getBoolean("PlayerUtils.greenText");
 	}
 	public static int maxHomes;
+	public static boolean disableBedExplosion;
+	public static boolean sleepInNonRespawn;
 	public static boolean signEdit;
 	public static boolean headSit;
 	public static boolean colourChat;

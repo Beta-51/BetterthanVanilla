@@ -52,7 +52,7 @@ public class GamemodeCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.gamemodeAll;
+		return !LusiiPlugin.gamemodeAll;
 	}
 	@Shadow
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

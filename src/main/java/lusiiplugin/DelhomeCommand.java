@@ -44,7 +44,7 @@ public class DelhomeCommand extends Command {
 
 
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.homeCommand;
+		return !LusiiPlugin.homeCommand;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

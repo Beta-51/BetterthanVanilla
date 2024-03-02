@@ -24,7 +24,7 @@ public class FixCommand extends Command {
 
 
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.gamemodeAll;
+		return !LusiiPlugin.gamemodeAll;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

@@ -48,11 +48,7 @@ public class HomeCommand extends Command {
 			lines = readTxtLines(String.valueOf(builder),sender.getPlayer().username);
 		}
 		player = sender.getPlayer();
-		//teleport(handler, sender, player, Integer.parseInt(lines.get(4)), Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)), (double)player.yRot, (double)player.xRot, (EntityPlayer)null);
 		teleport(handler, sender, player, Integer.parseInt(lines.get(3)), Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)), (double)player.yRot, (double)player.xRot, (EntityPlayer)null);
-		//handler.asServer().minecraftServer.playerList.sendPlayerToOtherDimension((EntityPlayerMP)sender.getPlayer(),Integer.parseInt(lines.get(4)));
-		//handler.asServer().minecraftServer.playerList.sendPacketToPlayer(sender.getPlayer().username,new Packet34EntityTeleport(sender.getPlayer().id,Integer.parseInt(lines.get(0)), Integer.parseInt(lines.get(1)), Integer.parseInt(lines.get(2)),(byte)sender.getPlayer().yRot,(byte)sender.getPlayer().xRot));
-		//sender.getPlayer().absMoveTo(Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)),sender.getPlayer().yRot,sender.getPlayer().xRot);
 		return true;
 	}
 
@@ -86,7 +82,7 @@ public class HomeCommand extends Command {
 
 
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.homeCommand;
+		return !LusiiPlugin.homeCommand;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
