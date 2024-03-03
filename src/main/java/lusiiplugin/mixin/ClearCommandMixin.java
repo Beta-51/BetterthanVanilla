@@ -39,7 +39,7 @@ public class ClearCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.clearCommand;
+		return !LusiiPlugin.clearCommand;
 	}
 
 	@Overwrite
