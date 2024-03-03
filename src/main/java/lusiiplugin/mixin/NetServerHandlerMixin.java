@@ -34,11 +34,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.io.IOException;
 import java.security.Key;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Mixin(value = NetServerHandler.class, remap = false)
 public class NetServerHandlerMixin extends NetHandler implements ICommandListener {
@@ -62,12 +60,28 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	@Shadow
 	public void log(String string) {
 	}
-	@Shadow
+
+	public List<Integer> getVanishedEntityIds() throws IOException {
+		List<Integer> playerEntitiesVanishedIDs = new ArrayList<>();
+		for (int i = 0; i < LusiiPlugin.readVanishedFileLines().size(); i++) {
+			playerEntitiesVanishedIDs.add(mcServer.playerList.getPlayerEntity(LusiiPlugin.readVanishedFileLines().get(i)).id);
+		}
+		return playerEntitiesVanishedIDs;
+	}
+
+	@Overwrite
 	public void sendPacket(Packet packet) {
+
+
+		this.netManager.addToSendQueue(packet);
+		this.field_22004_g = this.field_15_f;
 	}
 	@Shadow
 	public void kickPlayer(String s) {
 	}
+
+
+
 	@Overwrite
 	public void handleUseEntity(Packet7UseEntity packet) {
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
@@ -437,7 +451,18 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	}
 
 
+	@Overwrite
+	public void handleSendInitialPlayerList() {
+		Iterator var1 = this.mcServer.playerList.playerEntities.iterator();
+		while(var1.hasNext()) {
+			EntityPlayerMP entityPlayerMP = (EntityPlayerMP)var1.next();
+			if (LusiiPlugin.vanished.contains(entityPlayerMP.username)) {
 
+			} else {
+				this.sendPacket(new Packet72UpdatePlayerProfile(entityPlayerMP.username, entityPlayerMP.nickname, entityPlayerMP.score, entityPlayerMP.chatColor, true, entityPlayerMP.isOperator()));
+			}
+		}
+	}
 
 
 

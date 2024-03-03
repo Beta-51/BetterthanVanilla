@@ -110,7 +110,6 @@ public class EntityPlayerMixin extends EntityLiving {
 	protected float baseFlySpeed;
 	@Shadow
 	protected boolean isDwarf;
-	private ChunkCoordinates home;
 
 
 	public EntityPlayerMixin(World world) {
@@ -140,19 +139,6 @@ public class EntityPlayerMixin extends EntityLiving {
 		this.fireImmuneTicks = 20;
 		this.skinName = "char";
 	}
-
-
-
-	//@Inject(method = "tick", at = @At("HEAD"))
-	//public void tick(CallbackInfo ci) {
-	//	if (this.vehicle instanceof EntityPlayer) {
-	//		this.noPhysics = true;
-	//		this.collision = false;
-	//		if (((EntityPlayer) this.vehicle).isSneaking()) {
-	//			this.vehicle = null;
-	//		}
-	//	}
-	//}
 
 
 

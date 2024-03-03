@@ -1,23 +1,12 @@
 package lusiiplugin;
 
-import com.mojang.nbt.CompoundTag;
-import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.core.entity.EntityLiving;
-import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.item.Item;
-import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import org.apache.commons.lang3.mutable.Mutable;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-
-import static net.minecraft.core.net.command.commands.GiveCommand.givePlayerItem;
 
 public class SethomeCommand extends Command {
 	public SethomeCommand() {
@@ -49,7 +38,7 @@ public class SethomeCommand extends Command {
 			File file = new File(filePath);
 
 			if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
-				LusiiPlugin.logFile(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username);
+				LusiiPlugin.homesUtil(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username);
 				sender.sendMessage("§4Created home!");
 				return true;
 			} else if (file.exists()) {
@@ -63,7 +52,7 @@ public class SethomeCommand extends Command {
 		String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
 		File file = new File(filePath);
 		if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
-			LusiiPlugin.logFile(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username + builder);
+			LusiiPlugin.homesUtil(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username + builder);
 			sender.sendMessage("§4Created home " + builder + "!");
 			return true;
 		} else if (file.exists()) {

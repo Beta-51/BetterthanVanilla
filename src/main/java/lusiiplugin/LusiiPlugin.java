@@ -1,8 +1,7 @@
 package lusiiplugin;
 
 import net.fabricmc.api.ModInitializer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.net.PropertyManager;
+import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.util.GameStartEntrypoint;
@@ -10,9 +9,12 @@ import turniplabs.halplibe.util.RecipeEntrypoint;
 import turniplabs.halplibe.util.TomlConfigHandler;
 import turniplabs.halplibe.util.toml.Toml;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -32,11 +34,15 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("Commands.Spawn", "Let non-opped players use /spawn.", true);
 		toml.addEntry("Commands.Gamemode", "Let non-opped players use /gamemode.", false);
 		toml.addEntry("Commands.Clear", "Let non-opped players use /clear.", false);
+		toml.addEntry("Commands.Craft", "Let non-opped players use /craft", true);
 		toml.addCategory("PlayerUtils");
 		toml.addEntry("PlayerUtils.signEdit", "Allows players to edit signs by sneaking when breaking a sign and replacing it.", true);
 		toml.addEntry("PlayerUtils.headSit", "Allows players to sit on eachothers' heads when holding nothing in their hand.", false);
 		toml.addEntry("PlayerUtils.colourChat", "Allows players to use $$ as colour code for colourful chatting, obfuscation is disabled.", true);
 		toml.addEntry("PlayerUtils.greenText", "Allows players to turn their text green by putting '>' at the start of their messages.", true);
+		toml.addCategory("ServerUtils");
+		toml.addEntry("ServerUtils.MOTD", "Message of the day, shows up in server list. Don't be inappropriate!", "§5§lJoin us!");
+
 		CONFIG = new TomlConfigHandler(MOD_ID, toml);
 		staticFire = CONFIG.getBoolean("WorldUtils.StaticFire");
 		disableTNT = CONFIG.getBoolean("WorldUtils.DisableTNT");
@@ -47,14 +53,15 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		spawnCommand = CONFIG.getBoolean("Commands.Spawn");
 		gamemodeAll = CONFIG.getBoolean("Commands.Gamemode");
 		clearCommand = CONFIG.getBoolean("Commands.Clear");
+		craftCommand = CONFIG.getBoolean("Commands.Craft");
 		signEdit = CONFIG.getBoolean("PlayerUtils.signEdit");
 		headSit = CONFIG.getBoolean("PlayerUtils.headSit");
 		colourChat = CONFIG.getBoolean("PlayerUtils.colourChat");
 		greenText = CONFIG.getBoolean("PlayerUtils.greenText");
+		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
 	public static int maxHomes;
 	public static boolean disableBedExplosion;
-	public static boolean sleepInNonRespawn;
 	public static boolean signEdit;
 	public static boolean headSit;
 	public static boolean colourChat;
@@ -66,10 +73,19 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static boolean disableTNT;
 	public static boolean staticFire;
 	public static boolean clearCommand;
+
+	public static boolean craftCommand;
+	public static String MOTD;
+
+	public static final Set<String> vanished = new HashSet();
+	public static File vanishedFile;
+
 	@Override
     public void onInitialize() {
 
+		MinecraftServer server = MinecraftServer.getInstance();
 		String subdirectory = "player-homes";
+
 
         // Create the subdirectory if it doesn't exist
 		File directory = new File(subdirectory);
@@ -77,15 +93,51 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 			directory.mkdirs(); // Create the directory and its parent directories if necessary
 		}
 
+		String vanishFile = "vanished.txt";
+
+		// Create the subdirectory if it doesn't exist
+        vanishedFile = new File(vanishFile);
+
         LOGGER.info("Better than Vanilla initialized.");
     }
+
+	public static void vanishPlayer(String s) {
+		vanished.add(s.toLowerCase());
+		writeVanishedPlayers();
+	}
+
+	public static void unvanishPlayer(String s) {
+		vanished.remove(s.toLowerCase());
+		writeVanishedPlayers();
+	}
+	public static List<String> readVanishedFileLines() throws IOException {
+		return Files.readAllLines(vanishedFile.toPath());
+	}
+
+
+	private static void writeVanishedPlayers() {
+		try {
+			PrintWriter printwriter = new PrintWriter(new FileWriter(vanishedFile, false));
+			Iterator iterator = vanished.iterator();
+
+			while(iterator.hasNext()) {
+				String s = (String)iterator.next();
+				printwriter.println(s);
+			}
+
+			printwriter.close();
+		} catch (Exception var4) {
+			LOGGER.warn("Failed to save ban list: " + var4);
+		}
+
+	}
 
 	@Override
 	public void beforeGameStart() {
 
 	}
 	//Code taken from playerlogger plugin. I needed it. Seriously. I would've thrown something if i didn't have something to go off of.
-	public static void logFile(String fileContents, String fileName) {
+	public static void homesUtil(String fileContents, String fileName) {
 		try {
 			// Specify the subdirectory and file name
 			String subdirectory = "player-homes";
@@ -110,6 +162,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 	@Override
 	public void afterGameStart() {
+		MinecraftServer mcs = MinecraftServer.getInstance();
+		mcs.motd = MOTD;
+
 	}
 	@Override
 	public void onRecipesReady() {

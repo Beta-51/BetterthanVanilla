@@ -4,31 +4,22 @@ import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 
-public class MOTDCommand extends Command {
-	public MOTDCommand() {
-		super("motd", "");
+public class OPChatCommand extends Command {
+	public OPChatCommand() {
+		super("opchat", "opc","chatop");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		if (args.length == 0) {
-			sender.sendMessage(handler.asServer().minecraftServer.motd);
-			return true;
-		} else {
-			if (!sender.isAdmin()) {
-				sender.sendMessage(handler.asServer().minecraftServer.motd);
-				return false;
-			}
 			StringBuilder builder = new StringBuilder();
 			for(int i = 0; i < args.length; ++i) {
 				builder.append(args[i]).append(" ");
 			}
-			handler.asServer().minecraftServer.motd = builder.toString().replace("$$","§");
+			handler.asServer().sendMessageToAdmins("[§e§lOP CHAT§r] <" + sender.getPlayer().username + "§r> " +builder.toString().replace("$$","§"));
 			return true;
-		}
 	}
 
 	public boolean opRequired(String[] args) {
-		return false;
+		return true;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {

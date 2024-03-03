@@ -17,7 +17,9 @@
     "EntityArrowMixin",
     "EntityFireballMixin",
     "EntityPlayerMixin",
-    "BlockBedMixin"
+    "BlockBedMixin",
+    "PlayerListMixin",
+    "ContainerWorkbenchMixin"
   ],
   "client": [
   ],

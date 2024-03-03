@@ -9,7 +9,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import lusiiplugin.LusiiPlugin.*;
 
 import java.util.List;
 
@@ -29,6 +28,8 @@ public final class CommandsMixin {
 			commands.add(new HomeCommand());
 			commands.add(new HomesCommand());
 			commands.add(new RulesCommand());
-
+			commands.add(new OPChatCommand());
+			commands.add(new InvseeCommand());
+			commands.add(new CraftingCommand());
 	}
 }
