@@ -19,7 +19,8 @@
     "EntityPlayerMixin",
     "BlockBedMixin",
     "PlayerListMixin",
-    "ContainerWorkbenchMixin"
+    "ContainerWorkbenchMixin",
+    "BlockFluidMixin"
   ],
   "client": [
   ],

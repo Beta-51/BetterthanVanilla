@@ -1,6 +1,7 @@
 package lusiiplugin;
 
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.core.block.BlockPortal;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("WorldUtils.StaticFire", "Static fire (Fire does not spread, and does not delete blocks).", false);
 		toml.addEntry("WorldUtils.DisableTNT", "Removes all PrimedTNT entities the moment they tick, and prevents TNT from being ignited.", false);
 		toml.addEntry("WorldUtils.DisableBedExplosions", "Remove explosions from beds in non-respawn dimensions.", false);
+		toml.addEntry("WorldUtils.EnableSkyDimensionPortals", "Enable making portals to the Sky Dimension", false);
 		toml.addCategory("Commands");
 		toml.addEntry("Commands.Give", "Let non-opped players use /give.", false);
 		toml.addEntry("Commands.Home", "Let non-opped players use /home commands.", true);
@@ -47,6 +49,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		staticFire = CONFIG.getBoolean("WorldUtils.StaticFire");
 		disableTNT = CONFIG.getBoolean("WorldUtils.DisableTNT");
 		disableBedExplosion = CONFIG.getBoolean("WorldUtils.DisableBedExplosions");
+		enableSkyDimensionPortal = CONFIG.getBoolean("WorldUtils.EnableSkyDimensionPortals");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
 		homeCommand = CONFIG.getBoolean("Commands.Home");
 		maxHomes = CONFIG.getInt("Commands.HomeLimit");
@@ -60,6 +63,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		greenText = CONFIG.getBoolean("PlayerUtils.greenText");
 		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
+	public static boolean enableSkyDimensionPortal;
 	public static int maxHomes;
 	public static boolean disableBedExplosion;
 	public static boolean signEdit;
@@ -99,6 +103,12 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
         vanishedFile = new File(vanishFile);
 
         LOGGER.info("Better than Vanilla initialized.");
+
+		if (enableSkyDimensionPortal) {
+				((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
+		}
+
+
     }
 
 	public static void vanishPlayer(String s) {
