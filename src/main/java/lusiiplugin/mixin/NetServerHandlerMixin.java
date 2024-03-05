@@ -437,7 +437,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				{
 					if (LusiiPlugin.colourChat)
 						s = s.replace("$$", "§");
-					if (!this.playerEntity.isOperator()) {
+					if (!this.playerEntity.isOperator() && s.contains("§k")) {
 						s = s.replace("§k", "$$k");
 						this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§4§lHey!§r You may not use obfuscated text!");
 					}

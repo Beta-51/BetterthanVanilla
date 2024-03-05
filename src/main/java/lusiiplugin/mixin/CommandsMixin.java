@@ -31,5 +31,6 @@ public final class CommandsMixin {
 			commands.add(new OPChatCommand());
 			commands.add(new InvseeCommand());
 			commands.add(new CraftingCommand());
+			commands.add(new PingCommand());
 	}
 }
