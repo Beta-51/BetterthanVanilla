@@ -19,9 +19,9 @@ public class EntityTNTMixin extends Entity {
 	}
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void tick(CallbackInfo ci) {
-		if (LusiiPlugin.disableTNT) {
-			this.remove();
-		}
+			if (this.world.dimension.id == 0 && LusiiPlugin.DisableTNTOverworld) {this.remove();}
+			if (this.world.dimension.id == 1 && LusiiPlugin.DisableTNTNether) {this.remove();}
+			if (this.world.dimension.id == 2 && LusiiPlugin.DisableTNTSky) {this.remove();}
 	}
 
 

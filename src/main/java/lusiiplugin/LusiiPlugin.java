@@ -26,9 +26,12 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		Toml toml = new Toml();
 		toml.addCategory("WorldUtils");
 		toml.addEntry("WorldUtils.StaticFire", "Static fire (Fire does not spread, and does not delete blocks).", false);
-		toml.addEntry("WorldUtils.DisableTNT", "Removes all PrimedTNT entities the moment they tick, and prevents TNT from being ignited.", false);
 		toml.addEntry("WorldUtils.DisableBedExplosions", "Remove explosions from beds in non-respawn dimensions.", false);
 		toml.addEntry("WorldUtils.EnableSkyDimensionPortals", "Enable making portals to the Sky Dimension", false);
+		toml.addEntry("WorldUtils.AddTicksCatchableFishing", "Adds time in ticks to the window of time that you can catch fish, very useful for players with higher ping. 10-15 is recommended. 0 to disable, -40 or lower to make fishing impossible.",10);
+		toml.addEntry("WorldUtils.DisableTNTOverworld", "Disable TNT in the overworld", false);
+		toml.addEntry("WorldUtils.DisableTNTNether", "Disable TNT in the nether", false);
+		toml.addEntry("WorldUtils.DisableTNTSky", "Disable TNT in the sky dimension", false);
 		toml.addCategory("Commands");
 		toml.addEntry("Commands.Give", "Let non-opped players use /give.", false);
 		toml.addEntry("Commands.Home", "Let non-opped players use /home commands.", true);
@@ -47,9 +50,12 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 
 		CONFIG = new TomlConfigHandler(MOD_ID, toml);
 		staticFire = CONFIG.getBoolean("WorldUtils.StaticFire");
-		disableTNT = CONFIG.getBoolean("WorldUtils.DisableTNT");
 		disableBedExplosion = CONFIG.getBoolean("WorldUtils.DisableBedExplosions");
 		enableSkyDimensionPortal = CONFIG.getBoolean("WorldUtils.EnableSkyDimensionPortals");
+		addedTicksCatchable = CONFIG.getInt("WorldUtils.AddTicksCatchableFishing");
+		DisableTNTOverworld = CONFIG.getBoolean("WorldUtils.DisableTNTOverworld");
+		DisableTNTNether = CONFIG.getBoolean("WorldUtils.DisableTNTNether");
+		DisableTNTSky = CONFIG.getBoolean("WorldUtils.DisableTNTSky");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
 		homeCommand = CONFIG.getBoolean("Commands.Home");
 		maxHomes = CONFIG.getInt("Commands.HomeLimit");
@@ -64,6 +70,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
 	public static boolean enableSkyDimensionPortal;
+	public static boolean DisableTNTOverworld;
+	public static boolean DisableTNTNether;
+	public static boolean DisableTNTSky;
+	public static int addedTicksCatchable;
 	public static int maxHomes;
 	public static boolean disableBedExplosion;
 	public static boolean signEdit;
@@ -74,7 +84,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static boolean spawnCommand;
 	public static boolean giveCommand;
 	public static boolean homeCommand;
-	public static boolean disableTNT;
 	public static boolean staticFire;
 	public static boolean clearCommand;
 

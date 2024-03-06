@@ -434,13 +434,11 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				} else {
 					s = "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.WHITE + s;
 				}
-				{
-					if (LusiiPlugin.colourChat)
-						s = s.replace("$$", "§");
-					if (!this.playerEntity.isOperator() && s.contains("§k")) {
-						s = s.replace("§k", "$$k");
-						this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§4§lHey!§r You may not use obfuscated text!");
-					}
+				if (LusiiPlugin.colourChat) {
+					s = s.replace("$$", "§");
+				}
+				if (!this.playerEntity.isOperator() && s.contains("§k")) {s = s.replace("§k", "$$k");
+					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
 				}
 
 				System.out.println(s);

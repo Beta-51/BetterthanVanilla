@@ -20,7 +20,8 @@
     "BlockBedMixin",
     "PlayerListMixin",
     "ContainerWorkbenchMixin",
-    "BlockFluidMixin"
+    "BlockFluidMixin",
+    "EntityBobberMixin"
   ],
   "client": [
   ],
