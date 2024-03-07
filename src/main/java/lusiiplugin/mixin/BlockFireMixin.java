@@ -41,27 +41,28 @@ public class BlockFireMixin extends Block {
 
 	@Overwrite
 	public int tickRate() {
-		if (LusiiPlugin.staticFire) {
-			return 2147483647;
-		}
-		else {
-			return 40;
-		}
+		return 40;
 	}
+
+
 
 	public void setBurnResult(World world, int x, int y, int z) {
 		world.setBlockWithNotify(x, y, z, this.getBurnResultId(world, x, y, z));
 	}
 
-	@ModifyVariable(method = "updateTick", name = "infiniBurn", at = @At("STORE"), require = 1,remap = false)
-	public boolean modifyInfiniBurn(boolean old)
-	{
-		if (LusiiPlugin.staticFire)
-		return true;
-		else {
-			return old;
-		}
+
+	@Inject(method = "updateTick", at = @At("HEAD"))
+	public void updateTick(World world, int x, int y, int z, Random rand, CallbackInfo callbackInfo) {
+		boolean infiniBurn = world.getBlockId(x, y - 1, z) == Block.netherrack.id || LusiiPlugin.staticFire;
+			if (LusiiPlugin.staticFire) {
+				if (world.getCurrentWeather() != null && world.getCurrentWeather().isPrecipitation && (world.canBlockBeRainedOn(x, y, z) || world.canBlockBeRainedOn(x - 1, y, z) || world.canBlockBeRainedOn(x + 1, y, z) || world.canBlockBeRainedOn(x, y, z - 1) || world.canBlockBeRainedOn(x, y, z + 1))) {
+					this.setBurnResult(world, x, y, z);
+				}
+				return;
+			}
 	}
+
+
 
 	@Overwrite
 	private boolean canNeighborCatchFire(World world, int x, int y, int z) {
