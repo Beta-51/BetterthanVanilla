@@ -32,6 +32,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("WorldUtils.DisableTNTOverworld", "Disable TNT in the overworld", false);
 		toml.addEntry("WorldUtils.DisableTNTNether", "Disable TNT in the nether", false);
 		toml.addEntry("WorldUtils.DisableTNTSky", "Disable TNT in the sky dimension", false);
+		toml.addEntry("WorldUtils.EnableAntiTrampleFences", "Re-enable farmland trample prevention by putting fences under them", false);
+		toml.addEntry("WorldUtils.DisableTrample", "Completely disables trampling crops", false);
 		toml.addCategory("Commands");
 		toml.addEntry("Commands.Give", "Let non-opped players use /give.", false);
 		toml.addEntry("Commands.Home", "Let non-opped players use /home commands.", true);
@@ -56,6 +58,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		DisableTNTOverworld = CONFIG.getBoolean("WorldUtils.DisableTNTOverworld");
 		DisableTNTNether = CONFIG.getBoolean("WorldUtils.DisableTNTNether");
 		DisableTNTSky = CONFIG.getBoolean("WorldUtils.DisableTNTSky");
+		enableAntiTrampleFence = CONFIG.getBoolean("WorldUtils.EnableAntiTrampleFences");
+		disableTrample = CONFIG.getBoolean("WorldUtils.DisableTrample");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
 		homeCommand = CONFIG.getBoolean("Commands.Home");
 		maxHomes = CONFIG.getInt("Commands.HomeLimit");
@@ -70,6 +74,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
 	public static boolean enableSkyDimensionPortal;
+	public static boolean enableAntiTrampleFence;
+	public static boolean disableTrample;
 	public static boolean DisableTNTOverworld;
 	public static boolean DisableTNTNether;
 	public static boolean DisableTNTSky;

@@ -56,7 +56,7 @@ public class BlockFireMixin extends Block {
 		boolean infiniBurn = world.getBlockId(x, y - 1, z) == Block.netherrack.id || LusiiPlugin.staticFire;
 			if (LusiiPlugin.staticFire) {
 				if (world.getCurrentWeather() != null && world.getCurrentWeather().isPrecipitation && (world.canBlockBeRainedOn(x, y, z) || world.canBlockBeRainedOn(x - 1, y, z) || world.canBlockBeRainedOn(x + 1, y, z) || world.canBlockBeRainedOn(x, y, z - 1) || world.canBlockBeRainedOn(x, y, z + 1))) {
-					this.setBurnResult(world, x, y, z);
+					world.setBlock(x,y,z,0);
 				}
 				return;
 			}

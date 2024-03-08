@@ -21,7 +21,8 @@
     "PlayerListMixin",
     "ContainerWorkbenchMixin",
     "BlockFluidMixin",
-    "EntityBobberMixin"
+    "EntityBobberMixin",
+    "BlockFarmlandMixin"
   ],
   "client": [
   ],
