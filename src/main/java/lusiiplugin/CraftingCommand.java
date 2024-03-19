@@ -6,7 +6,7 @@ import net.minecraft.core.net.command.CommandSender;
 
 public class CraftingCommand extends Command {
 	public CraftingCommand() {
-		super("craftingtable", "craft", "crafting");
+		super("craftingtable", "craft", "crafting", "cb");
 	}
 //
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {

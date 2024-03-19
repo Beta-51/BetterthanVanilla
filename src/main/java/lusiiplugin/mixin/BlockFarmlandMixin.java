@@ -28,8 +28,10 @@ public class BlockFarmlandMixin extends Block {
 		if ((blockBelow == Block.fencePlanksOak || blockBelow == Block.fencePlanksOakPainted) && enableAntiTrampleFence || disableTrample) {
 			return;
 		}
-		if (((EntityPlayer)entity).inventory.armorInventory[0] != null && ((EntityPlayer)entity).inventory.armorInventory[0].getItem() == Item.armorBootsLeather) {
-			return;
+		if (entity instanceof EntityPlayer) {
+			if (((EntityPlayer) entity).inventory.armorInventory[0] != null && ((EntityPlayer) entity).inventory.armorInventory[0].getItem() == Item.armorBootsLeather) {
+				return;
+			}
 		}
 
 		if (world.getBlockMetadata(x, y, z) > 0) {

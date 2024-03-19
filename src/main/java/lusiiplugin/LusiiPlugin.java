@@ -29,9 +29,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("WorldUtils.DisableBedExplosions", "Remove explosions from beds in non-respawn dimensions.", false);
 		toml.addEntry("WorldUtils.EnableSkyDimensionPortals", "Enable making portals to the Sky Dimension", false);
 		toml.addEntry("WorldUtils.AddTicksCatchableFishing", "Adds time in ticks to the window of time that you can catch fish, very useful for players with higher ping. 10-15 is recommended. 0 to disable, -40 or lower to make fishing impossible.",10);
-		toml.addEntry("WorldUtils.DisableTNTOverworld", "Disable TNT in the overworld", false);
-		toml.addEntry("WorldUtils.DisableTNTNether", "Disable TNT in the nether", false);
-		toml.addEntry("WorldUtils.DisableTNTSky", "Disable TNT in the sky dimension", false);
+		toml.addEntry("WorldUtils.DisableTNTOverworld", "Disable TNT in the overworld after y level. 0 = no TNT", 127);
+		toml.addEntry("WorldUtils.DisableTNTNether", "Disable TNT in the nether after y level. 0 = no TNT", 256);
+		toml.addEntry("WorldUtils.DisableTNTSky", "Disable TNT in the sky dimension after y level. 0 = no TNT", 256);
 		toml.addEntry("WorldUtils.EnableAntiTrampleFences", "Re-enable farmland trample prevention by putting fences under them", false);
 		toml.addEntry("WorldUtils.DisableTrample", "Completely disables trampling crops", false);
 		toml.addCategory("Commands");
@@ -42,6 +42,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("Commands.Gamemode", "Let non-opped players use /gamemode.", false);
 		toml.addEntry("Commands.Clear", "Let non-opped players use /clear.", false);
 		toml.addEntry("Commands.Craft", "Let non-opped players use /craft", true);
+		toml.addEntry("Commands.RTP", "Let players use /RTP", true);
+		toml.addEntry("Commands.RTPCost","Amount of points that RTP will take on use. 0 to disable (Not recommended, easily spammable)", 1000);
+		toml.addEntry("Commands.NickLength","Nickname length limit, default = 16", 16);
 		toml.addCategory("PlayerUtils");
 		toml.addEntry("PlayerUtils.signEdit", "Allows players to edit signs by sneaking when breaking a sign and replacing it.", true);
 		toml.addEntry("PlayerUtils.headSit", "Allows players to sit on eachothers' heads when holding nothing in their hand.", false);
@@ -55,9 +58,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		disableBedExplosion = CONFIG.getBoolean("WorldUtils.DisableBedExplosions");
 		enableSkyDimensionPortal = CONFIG.getBoolean("WorldUtils.EnableSkyDimensionPortals");
 		addedTicksCatchable = CONFIG.getInt("WorldUtils.AddTicksCatchableFishing");
-		DisableTNTOverworld = CONFIG.getBoolean("WorldUtils.DisableTNTOverworld");
-		DisableTNTNether = CONFIG.getBoolean("WorldUtils.DisableTNTNether");
-		DisableTNTSky = CONFIG.getBoolean("WorldUtils.DisableTNTSky");
+		DisableTNTOverworld = CONFIG.getInt("WorldUtils.DisableTNTOverworld");
+		DisableTNTNether = CONFIG.getInt("WorldUtils.DisableTNTNether");
+		DisableTNTSky = CONFIG.getInt("WorldUtils.DisableTNTSky");
 		enableAntiTrampleFence = CONFIG.getBoolean("WorldUtils.EnableAntiTrampleFences");
 		disableTrample = CONFIG.getBoolean("WorldUtils.DisableTrample");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
@@ -67,6 +70,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		gamemodeAll = CONFIG.getBoolean("Commands.Gamemode");
 		clearCommand = CONFIG.getBoolean("Commands.Clear");
 		craftCommand = CONFIG.getBoolean("Commands.Craft");
+		RTPCommand = CONFIG.getBoolean("Commands.RTP");
+		RTPCost = CONFIG.getInt("Commands.RTPCost");
+		NickLength = CONFIG.getInt("Commands.NickLength");
 		signEdit = CONFIG.getBoolean("PlayerUtils.signEdit");
 		headSit = CONFIG.getBoolean("PlayerUtils.headSit");
 		colourChat = CONFIG.getBoolean("PlayerUtils.colourChat");
@@ -74,11 +80,14 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
 	public static boolean enableSkyDimensionPortal;
+	public static int NickLength;
 	public static boolean enableAntiTrampleFence;
+	public static boolean RTPCommand;
+	public static int RTPCost;
 	public static boolean disableTrample;
-	public static boolean DisableTNTOverworld;
-	public static boolean DisableTNTNether;
-	public static boolean DisableTNTSky;
+	public static int DisableTNTOverworld;
+	public static int DisableTNTNether;
+	public static int DisableTNTSky;
 	public static int addedTicksCatchable;
 	public static int maxHomes;
 	public static boolean disableBedExplosion;

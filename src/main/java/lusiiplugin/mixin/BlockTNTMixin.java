@@ -27,9 +27,18 @@ public class BlockTNTMixin extends Block {
 
 	@Overwrite
 	public void ignite(World world, int x, int y, int z, EntityPlayer player, boolean sound) {
-			if (world.dimension.id == 0 && LusiiPlugin.DisableTNTOverworld) {return;}
-			if (world.dimension.id == 1 && LusiiPlugin.DisableTNTNether) {return;}
-			if (world.dimension.id == 2 && LusiiPlugin.DisableTNTSky) {return;}
+			if (world.dimension.id == 0 && LusiiPlugin.DisableTNTOverworld <= y) {
+				player.addChatMessage("Tnt is disabled above y:" + LusiiPlugin.DisableTNTOverworld);
+				return;
+			}
+			if (world.dimension.id == 1 && LusiiPlugin.DisableTNTNether <= y) {
+				player.addChatMessage("Tnt is disabled above y:" + LusiiPlugin.DisableTNTNether);
+				return;
+			}
+			if (world.dimension.id == 2 && LusiiPlugin.DisableTNTSky <= y) {
+				player.addChatMessage("Tnt is disabled above y:" + LusiiPlugin.DisableTNTSky);
+				return;
+			}
 
 			if (world.isClientSide) {
 				world.playSoundEffect(SoundType.WORLD_SOUNDS, (double)((float)x + 0.5F), (double)((float)y + 0.5F), (double)((float)z + 0.5F), "random.fuse", 1.0F, 1.0F);

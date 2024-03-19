@@ -59,7 +59,7 @@ public class GiveCommandMixin extends Command {
 	}
 	@Overwrite
 	public boolean opRequired(String[] args) {
-		return LusiiPlugin.giveCommand;
+		return !LusiiPlugin.giveCommand;
 	}
 
 	@Overwrite

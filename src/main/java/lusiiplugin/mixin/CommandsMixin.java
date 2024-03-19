@@ -32,5 +32,8 @@ public final class CommandsMixin {
 			commands.add(new InvseeCommand());
 			commands.add(new CraftingCommand());
 			commands.add(new PingCommand());
+			commands.add(new RTPCommand());
+			commands.add(new CrashCommand());
+			commands.add(new PayCommand());
 	}
 }

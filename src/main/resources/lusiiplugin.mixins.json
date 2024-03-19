@@ -22,7 +22,9 @@
     "ContainerWorkbenchMixin",
     "BlockFluidMixin",
     "EntityBobberMixin",
-    "BlockFarmlandMixin"
+    "BlockFarmlandMixin",
+    "ContainerMixin",
+    "NicknameCommandMixin"
   ],
   "client": [
   ],

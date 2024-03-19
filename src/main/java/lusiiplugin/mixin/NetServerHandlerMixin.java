@@ -360,7 +360,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				int y = packet.yPosition;
 				l = packet.zPosition;
 				TileEntitySign tileEntity = (TileEntitySign)tileentity;
-				System.out.println("Sign placed by "+ this.playerEntity.username+" at "+ tileEntity.x + 0.5 + ", " + tileEntity.y + 0.5 + ", " + tileEntity.z + 0.5);
+				System.out.println("Sign placed by "+ this.playerEntity.username+" at "+ i + 0.5 + ", " + y + 0.5 + ", " + l + 0.5);
 				System.out.println("Contains text: " + Arrays.toString(packet.signLines));
 				for(int j1 = 0; j1 < 4; ++j1) {
 					tileEntity.signText[j1] = packet.signLines[j1];
@@ -420,6 +420,12 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				}
 			}
 			if (s.startsWith("/")) {
+				if (LusiiPlugin.colourChat) {
+					s = s.replace("$$", "§");
+				}
+				if (!this.playerEntity.isOperator() && s.contains("§k")) {s = s.replace("§k", "$$k");
+					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
+				}
 				this.handleSlashCommand(s);
 			} else {
 				s = ChatEmotes.process(s);
@@ -606,6 +612,15 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		worldserver.field_819_z = false;
 	}
 	@Overwrite
+	public void handleRespawn(Packet9Respawn packet) {
+		if (this.playerEntity.health <= 0) {
+			int score = this.playerEntity.score;
+			this.playerEntity = this.mcServer.playerList.recreatePlayerEntity(this.playerEntity, 0);
+			this.playerEntity.score = score;
+		}
+	}
+
+	@Overwrite
 	public void handleBlockDig(Packet14BlockDig packet) {
         int x = packet.xPosition;
         int y = packet.yPosition;
@@ -651,7 +666,11 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
                         } else {
                             //this.mcServer.configManager.sendChatMessageToPlayer(this.playerEntity.username,"Replace a sign to rewrite the sign, or don't.");
                         }
-                    } else if (packet.status == 2 && !this.playerEntity.playerController.destroyBlock(x, y, z)) {
+                    } else if (packet.status == 2 && !this.playerEntity.playerController.destroyBlock(x, y, z))
+						if (world.getBlock(x, y, z) == Block.chestLegacy || world.getBlock(x, y, z) == Block.chestPlanksOakPainted || world.getBlock(x, y, z) == Block.chestPlanksOak || world.getBlock(x, y, z) == Block.chestLegacyPainted) {
+							System.out.println(this.playerEntity.username + " broke chest at " + x + ", " + y + ", " + z);
+							logger.info(this.playerEntity.username + " broke chest at " + x + ", " + y + ", " + z);
+						}
                         if (!((world.getBlock(x, y, z) == Block.signPostPlanksOak || world.getBlock(x, y, z) == Block.signWallPlanksOak) && this.playerEntity.isSneaking())) {
                             this.playerEntity.playerNetServerHandler.sendPacket(new Packet53BlockChange(x, y, z, world));
                         } else {
@@ -663,7 +682,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
                 }
             }
         }
-    }
+
 
 
 

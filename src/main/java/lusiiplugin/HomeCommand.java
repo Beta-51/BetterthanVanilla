@@ -30,7 +30,7 @@ public class HomeCommand extends Command {
 			builder.append(args[i]).append(" ");
 		}
 		String subdirectory = "player-homes";
-		if (args.length == 0 || builder.toString().equals("home")) {
+		if (args.length == 0 || builder.toString().equalsIgnoreCase("home")) {
 			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
 			File file = new File(filePath);
 			if (!file.exists()) {
@@ -42,7 +42,7 @@ public class HomeCommand extends Command {
 			String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
 			File file = new File(filePath);
 			if (!file.exists()) {
-				sender.sendMessage("You do not have a named home!");
+				sender.sendMessage("That home does not exist!");
 				return false;
 			}
 			lines = readTxtLines(String.valueOf(builder),sender.getPlayer().username);
