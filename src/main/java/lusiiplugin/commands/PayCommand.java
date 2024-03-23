@@ -4,8 +4,6 @@ import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import net.minecraft.core.player.inventory.IInventory;
-import net.minecraft.core.player.inventory.InventoryPlayer;
 
 public class PayCommand extends Command {
 	public PayCommand() {
@@ -16,23 +14,27 @@ public class PayCommand extends Command {
 		if (args.length < 2) {
 			return false;
 		}
-		if (sender.getPlayer().score < Integer.parseInt(args[1])) {
+
+		int payAmount = Integer.parseInt(args[1]);
+		EntityPlayer receivePlayer = handler.getPlayer(args[0]);
+		EntityPlayer sendPlayer = sender.getPlayer();
+
+		if (sendPlayer.score < payAmount) {
 			sender.sendMessage("§e§lInsufficient funds!");
 			return true;
 		}
-		if (Integer.parseInt(args[1]) <= 0) {
-			sender.sendMessage("§e§lInteger must be above 0.");
+		if (payAmount <= 0) {
+			sender.sendMessage("§e§lAmount must be above 0.");
 			return true;
 		}
-		int payment = Integer.parseInt(args[1]);
-		EntityPlayer player;
-		player = handler.getPlayer(args[0]);
-		if (player == null) {
+		if (receivePlayer == null) {
+			sender.sendMessage("§4You must specify a player!");
 			return false;
 		}
-		sender.getPlayer().score -= payment;
-		player.score += payment;
-		sender.sendMessage("Paid " + player.username + " " + payment + " points.");
+		sendPlayer.score -= payAmount;
+		receivePlayer.score += payAmount;
+		sender.sendMessage("§1Paid §4" + receivePlayer.username + " §3" + payAmount + "§1 points.");
+		handler.sendMessageToPlayer(receivePlayer, "§4" + sendPlayer.username + "§1 has paid you §3" + payAmount + "§1 points.");
 		return true;
 	}
 

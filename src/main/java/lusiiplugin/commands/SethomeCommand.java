@@ -1,6 +1,8 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerHomes;
+import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
@@ -15,59 +17,35 @@ public class SethomeCommand extends Command {
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		StringBuilder builder = new StringBuilder();
-		for (int i = 0; i < args.length; ++i) {
-			builder.append(args[i]).append(" ");
-		}
-		String subdirectory = "player-homes";
-		List<String> results = new ArrayList<String>();
-		File[] files = new File(subdirectory).listFiles();
-		for (File file : files) {
-			if (file.isFile()) {
-				if (file.getName().startsWith(sender.getPlayer().username)) {
-					if (file.getName().equals(sender.getPlayer().username + ".txt")) {
-						results.add("home");
-					} else {
-						results.add(file.getName().replace(".txt", "").replaceFirst(sender.getPlayer().username, ""));
-					}
-				}
-			}
-		}
+		EntityPlayer p = sender.getPlayer();
+		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
 
-		if (args.length == 0 || builder.toString().equals("home")) {
-			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
-			File file = new File(filePath);
-
-			if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
-				LusiiPlugin.homesUtil(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username);
-				sender.sendMessage("§4Created home!");
-				return true;
-			} else if (file.exists()) {
-				sender.sendMessage("§4You already have a home! Use /delhome!");
-				return true;
-			} else {
-				sender.sendMessage("§4You've reached the max amount of homes!");
-				return true;
-			}
-		}
-		String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
-		File file = new File(filePath);
-		if (!file.exists() && results.size() < LusiiPlugin.maxHomes) {
-			LusiiPlugin.homesUtil(sender.getPlayer().x + "\n" + sender.getPlayer().y + "\n" + sender.getPlayer().z + "\n" + sender.getPlayer().dimension, sender.getPlayer().username + builder);
-			sender.sendMessage("§4Created home " + builder + "!");
-			return true;
-		} else if (file.exists()) {
-			sender.sendMessage("§4You already have a home! Use /delhome!");
-			return true;
+		String homeName;
+		if (args.length > 0) {
+			homeName = String.join(" ", args);
 		} else {
+			homeName = "home";
+		}
+
+		if (homeName.equals("bed")) {
+			sender.sendMessage("§4This home is reserved for your bed.");
+			return true;
+		}
+
+		if (homes.getAmount() == LusiiPlugin.maxHomes) {
 			sender.sendMessage("§4You've reached the max amount of homes!");
 			return true;
 		}
+
+		if (homes.setHome(p, homeName)) {
+			sender.sendMessage("§4Created home: §1" + homeName);
+			LusiiPlugin.savePlayerHomes();
+		} else {
+			sender.sendMessage("§4You already have a home named: §1" + homeName);
+			sender.sendMessage("§4Use: §3/delhome " + homeName + "§4 to remove");
+		}
+		return true;
 	}
-
-
-
-
 
 	public boolean opRequired(String[] args) {
 		return !LusiiPlugin.homeCommand;

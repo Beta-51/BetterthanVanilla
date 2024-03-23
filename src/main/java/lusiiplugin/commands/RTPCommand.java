@@ -6,7 +6,6 @@ import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import net.minecraft.core.net.command.ServerCommandHandler;
 import net.minecraft.core.net.packet.*;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 
@@ -42,17 +41,23 @@ public class RTPCommand extends Command {
 
 		tpInfo.update(p);
 
-		handler.asServer()
-			.minecraftServer
-			.playerList
-			.sendPacketToPlayer(
-				p.username,
-				new Packet9Respawn((byte) p.dimension, (byte) 0)
-			);
+//		handler.asServer()
+//			.minecraftServer
+//			.playerList
+//			.sendPacketToPlayer(
+//				p.username,
+//				new Packet9Respawn((byte) p.dimension, (byte) 0)
+//			);
+//
+//		((EntityPlayerMP) p)
+//			.playerNetServerHandler
+//			.teleportAndRotate(randX, 256, randZ, p.yRot, p.xRot);
 
-		((EntityPlayerMP) p)
-			.playerNetServerHandler
-			.teleportAndRotate(randX, 256, randZ, p.yRot, p.xRot);
+		((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
+			new Packet9Respawn((byte) p.dimension, (byte) 0)
+		);
+
+		LusiiPlugin.teleport(p, randX, 256, randZ);
 
 		sender.sendMessage("Teleported!");
 

@@ -10,12 +10,12 @@ public class OPChatCommand extends Command {
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-			StringBuilder builder = new StringBuilder();
-			for(int i = 0; i < args.length; ++i) {
-				builder.append(args[i]).append(" ");
-			}
-			handler.asServer().sendMessageToAdmins("[§e§lOP CHAT§r] <" + sender.getPlayer().username + "§r> " +builder.toString().replace("$$","§"));
-			return true;
+		StringBuilder builder = new StringBuilder();
+        for (String arg : args) {
+            builder.append(arg).append(" ");
+        }
+		handler.asServer().sendMessageToAdmins("[§e§lOP CHAT§r] <" + sender.getPlayer().username + "§r> " +builder.toString().replace("$$","§"));
+		return true;
 	}
 
 	public boolean opRequired(String[] args) {

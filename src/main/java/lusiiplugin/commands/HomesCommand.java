@@ -1,6 +1,9 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.HomePosition;
+import lusiiplugin.utils.PlayerHomes;
+import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
@@ -8,41 +11,29 @@ import net.minecraft.core.net.command.CommandSender;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class HomesCommand extends Command {
 	public HomesCommand() {
-		super("homes", "");
+		super("homes");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		String subdirectory = "player-homes";
-		String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
-		List<String> results = new ArrayList<String>();
+		EntityPlayer p = sender.getPlayer();
+		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
+		Optional<ArrayList<String>> homesList = homes.getHomesList();
 
-
-		File[] files = new File(subdirectory).listFiles();
-		for (File file : files) {
-			if (file.isFile()) {
-				if (file.getName().startsWith(sender.getPlayer().username)) {
-					if (file.getName().equals(sender.getPlayer().username + ".txt")) {
-						results.add("home");
-					} else {
-						results.add(file.getName().replace(".txt", "").replaceFirst(sender.getPlayer().username, ""));
-					}
-				}
-			}
+		if (!homesList.isPresent()) {
+			sender.sendMessage("§1You do not have any homes!");
+			sender.sendMessage("§1Set a home with: §3/sethome [name]");
+			return true;
 		}
 
-		String theResults = results.toString().replace(" , ", ", ");
-		theResults = theResults.replace("[", "");
-		theResults = theResults.replace("]", "");
-		sender.sendMessage("§4Homes: §r" + theResults);
+		ArrayList<String> list = homesList.get();
+		String homesString = String.join("§1, §4", list);
+		sender.sendMessage("§1Homes: §4" + homesString);
 		return true;
 	}
-
-
-
-
 
 	public boolean opRequired(String[] args) {
 		return !LusiiPlugin.homeCommand;

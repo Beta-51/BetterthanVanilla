@@ -19,9 +19,9 @@ public class MOTDCommand extends Command {
 				return false;
 			}
 			StringBuilder builder = new StringBuilder();
-			for(int i = 0; i < args.length; ++i) {
-				builder.append(args[i]).append(" ");
-			}
+            for (String arg : args) {
+                builder.append(arg).append(" ");
+            }
 			handler.asServer().minecraftServer.motd = builder.toString().replace("$$","§");
 			return true;
 		}

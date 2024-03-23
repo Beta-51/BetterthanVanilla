@@ -1,18 +1,10 @@
 package lusiiplugin.commands;
 
-import net.minecraft.core.block.entity.TileEntity;
-import net.minecraft.core.block.entity.TileEntityChest;
 import net.minecraft.core.entity.Entity;
+import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.entity.projectile.EntityArrow;
-import net.minecraft.core.entity.projectile.EntityFireball;
-import net.minecraft.core.entity.projectile.EntitySnowball;
 import net.minecraft.core.net.command.*;
-import net.minecraft.core.util.phys.Vec3d;
-import net.minecraft.core.world.IVehicle;
 import net.minecraft.core.world.World;
-import net.minecraft.core.world.chunk.ChunkCoordinates;
-
-import java.util.Objects;
 
 import static java.lang.Math.floor;
 
@@ -22,7 +14,8 @@ public class SitCommand extends Command {
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		if (!sender.getPlayer().onGround || sender.getPlayer().isPassenger()) {
+		EntityPlayer p = sender.getPlayer();
+		if (!p.onGround || p.isPassenger()) {
 			sender.sendMessage("You may only use this on the ground!");
 			return false;
 		}
@@ -32,8 +25,7 @@ public class SitCommand extends Command {
 		entity.spawnInit();
 		entity.moveTo(floor(location.getX())+.5, location.getY()-0.8, floor(location.getZ())+.5, 90F, 0.0F);
 		location.getWorld().entityJoinedWorld(entity);
-		sender.getPlayer().startRiding(entity);
-		//entity.remove();
+		p.startRiding(entity);
 		return true;
 	}
 
@@ -43,7 +35,7 @@ public class SitCommand extends Command {
 
 	public static Entity createEntity(Class<? extends Entity> entityClass, World world) {
 		try {
-			return (Entity)entityClass.getConstructor(World.class).newInstance(world);
+			return entityClass.getConstructor(World.class).newInstance(world);
 		} catch (Exception var3) {
 			throw new CommandError("Error! Contact an Operator about this! SitCommand.java");
 		}
