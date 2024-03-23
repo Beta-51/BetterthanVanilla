@@ -1,4 +1,4 @@
-package lusiiplugin;
+package lusiiplugin.commands;
 
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.entity.TileEntityChest;

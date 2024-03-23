@@ -1,10 +1,13 @@
-package lusiiplugin;
+package lusiiplugin.commands;
 
+import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerTPInfo;
 import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.entity.projectile.EntityArrow;
 import net.minecraft.core.net.command.*;
 import net.minecraft.core.net.packet.Packet34EntityTeleport;
+import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.core.world.World;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 
@@ -34,7 +37,7 @@ public class HomeCommand extends Command {
 			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
 			File file = new File(filePath);
 			if (!file.exists()) {
-				sender.sendMessage("You do not have a home!");
+				sender.sendMessage("§4You do not have a home!");
 				return false;
 			}
 			lines = readTxtLinesUnnamed(sender.getPlayer().username);
@@ -42,13 +45,16 @@ public class HomeCommand extends Command {
 			String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
 			File file = new File(filePath);
 			if (!file.exists()) {
-				sender.sendMessage("That home does not exist!");
+				sender.sendMessage("§4That home does not exist!");
 				return false;
 			}
 			lines = readTxtLines(String.valueOf(builder),sender.getPlayer().username);
 		}
 		player = sender.getPlayer();
-		teleport(handler, sender, player, Integer.parseInt(lines.get(3)), Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)), (double)player.yRot, (double)player.xRot, (EntityPlayer)null);
+		boolean didTP = teleport(handler, sender, player, Integer.parseInt(lines.get(3)), Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)), (double)player.yRot, (double)player.xRot, (EntityPlayer)null);
+		if (didTP) {
+			sender.sendMessage("§4Teleported to §1" + args[0]);
+		}
 		return true;
 	}
 
@@ -57,25 +63,36 @@ public class HomeCommand extends Command {
 	public EntityPlayer getPlayer(CommandHandler handler, String name) {
 		EntityPlayer player = handler.getPlayer(name);
 		if (player == null) {
-			throw new CommandError("Player not found: " + name);
+			throw new CommandError("§4Player not found: §1" + name);
 		} else {
 			return player;
 		}
 	}
 
-	public static void teleport(CommandHandler handler, CommandSender sender, EntityPlayer p1, Integer dimension, double x, double y, double z, double yaw, double pitch, EntityPlayer p2) {
-		if (p1 instanceof EntityPlayerMP) {
-			EntityPlayerMP p1MP = (EntityPlayerMP)p1;
-			if (dimension != null && p1MP.dimension != dimension && handler instanceof ServerCommandHandler) {
-				ServerCommandHandler serverCommandHandler = (ServerCommandHandler)handler;
-				serverCommandHandler.minecraftServer.playerList.sendPlayerToOtherDimension(p1MP, dimension);
+	// returns true if tp is successful
+	public static boolean teleport(CommandHandler handler, CommandSender sender, EntityPlayer p1, Integer dimension, double x, double y, double z, double yaw, double pitch, EntityPlayer p2) {
+		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p1);
+
+		if (tpInfo.canTP()) {
+			tpInfo.update(p1);
+
+			if (p1 instanceof EntityPlayerMP) {
+				EntityPlayerMP p1MP = (EntityPlayerMP)p1;
+				if (dimension != null && p1MP.dimension != dimension && handler instanceof ServerCommandHandler) {
+					ServerCommandHandler serverCommandHandler = (ServerCommandHandler)handler;
+					serverCommandHandler.minecraftServer.playerList.sendPlayerToOtherDimension(p1MP, dimension);
+				}
+
+				p1MP.playerNetServerHandler.teleportAndRotate(x, y, z, p1MP.yRot, p1MP.xRot);
+			} else {
+				p1.absMoveTo(x, y, z, p1.yRot, p1.xRot);
 			}
-
-			p1MP.playerNetServerHandler.teleportAndRotate(x, y, z, p1MP.yRot, p1MP.xRot);
+			return true;
 		} else {
-			p1.absMoveTo(x, y, z, p1.yRot, p1.xRot);
+			int waitTime = tpInfo.cooldown();
+			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
 		}
-
+		return false;
 	}
 
 
