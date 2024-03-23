@@ -7,7 +7,6 @@ import net.minecraft.core.util.phys.Vec3d;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class PlayerTPInfo {
