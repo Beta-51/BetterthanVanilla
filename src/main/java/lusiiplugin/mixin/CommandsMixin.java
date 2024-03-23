@@ -1,7 +1,7 @@
 package lusiiplugin.mixin;
 
 
-import lusiiplugin.*;
+import lusiiplugin.commands.*;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.Commands;
 import org.spongepowered.asm.mixin.Mixin;
@@ -35,5 +35,11 @@ public final class CommandsMixin {
 			commands.add(new RTPCommand());
 			commands.add(new CrashCommand());
 			commands.add(new PayCommand());
+			commands.add(new BackCommand());
+			commands.add(new TPAAllCommand());
+			commands.add(new TPACommand());
+			commands.add(new TPConfirmCommand());
+			commands.add(new TPDenyCommand());
+			commands.add(new TPRequestsCommand());
 	}
 }

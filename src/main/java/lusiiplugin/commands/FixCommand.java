@@ -1,5 +1,6 @@
-package lusiiplugin;
+package lusiiplugin.commands;
 
+import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemStack;

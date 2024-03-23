@@ -22,6 +22,7 @@ public class SpawnCommandMixin extends Command {
 			World world = handler.getWorld(player);
 			ChunkCoordinates pos = world.getSpawnPoint();
 			sender.sendMessage("Teleporting to spawn...");
+			LusiiPlugin.getTPInfo(player).update(player);
 			if (player instanceof EntityPlayerMP) {
 				EntityPlayerMP playerMP = (EntityPlayerMP)player;
 				if (playerMP.dimension != 0) {

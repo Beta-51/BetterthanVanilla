@@ -1,7 +1,9 @@
 package lusiiplugin;
 
+import lusiiplugin.utils.PlayerTPInfo;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.BlockPortal;
+import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,10 +14,7 @@ import turniplabs.halplibe.util.toml.Toml;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -42,6 +41,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("Commands.Gamemode", "Let non-opped players use /gamemode.", false);
 		toml.addEntry("Commands.Clear", "Let non-opped players use /clear.", false);
 		toml.addEntry("Commands.Craft", "Let non-opped players use /craft", true);
+		toml.addEntry("Commands.TPA", "Let non-opped players use /tpa", true);
+		toml.addEntry("Commands.Back", "Let non-opped players use /back", true);
+		toml.addEntry("Commands.TPACost","Amount of points that TPA will take on use. 0 to disable (Not recommended, easily spammable)", 100);
+		toml.addEntry("Commands.TPTimeout", "Number of seconds between uses of /tpa, /rtp, and /home", 15);
 		toml.addEntry("Commands.RTP", "Let players use /RTP", true);
 		toml.addEntry("Commands.RTPCost","Amount of points that RTP will take on use. 0 to disable (Not recommended, easily spammable)", 1000);
 		toml.addEntry("Commands.NickLength","Nickname length limit, default = 16", 16);
@@ -72,6 +75,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		craftCommand = CONFIG.getBoolean("Commands.Craft");
 		RTPCommand = CONFIG.getBoolean("Commands.RTP");
 		RTPCost = CONFIG.getInt("Commands.RTPCost");
+		BackCommand = CONFIG.getBoolean("Commands.Back");
+		TPACommand = CONFIG.getBoolean("Commands.TPA");
+		TPACost = CONFIG.getInt("Commands.TPACost");
+		TPTimeout = CONFIG.getInt("Commands.TPTimeout");
 		NickLength = CONFIG.getInt("Commands.NickLength");
 		signEdit = CONFIG.getBoolean("PlayerUtils.signEdit");
 		headSit = CONFIG.getBoolean("PlayerUtils.headSit");
@@ -84,6 +91,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static boolean enableAntiTrampleFence;
 	public static boolean RTPCommand;
 	public static int RTPCost;
+	public static boolean TPACommand;
+	public static int TPACost;
+	public static int TPTimeout;
+	public static boolean BackCommand;
 	public static boolean disableTrample;
 	public static int DisableTNTOverworld;
 	public static int DisableTNTNether;
@@ -104,7 +115,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 
 	public static boolean craftCommand;
 	public static String MOTD;
-
+	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
 	public static final Set<String> vanished = new HashSet();
 	public static File vanishedFile;
 
@@ -148,11 +159,14 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		return Files.readAllLines(vanishedFile.toPath());
 	}
 
+	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
+		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
+	}
 
 	private static void writeVanishedPlayers() {
 		try {
 			PrintWriter printwriter = new PrintWriter(new FileWriter(vanishedFile, false));
-			Iterator iterator = vanished.iterator();
+			Iterator<String> iterator = vanished.iterator();
 
 			while(iterator.hasNext()) {
 				String s = (String)iterator.next();

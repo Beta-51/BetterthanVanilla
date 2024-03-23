@@ -1,4 +1,4 @@
-package lusiiplugin;
+package lusiiplugin.commands;
 
 import lusiiplugin.mixin.EntityPlayerMPMixin;
 import net.minecraft.core.entity.player.EntityPlayer;

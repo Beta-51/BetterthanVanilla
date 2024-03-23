@@ -1,4 +1,4 @@
-package lusiiplugin;
+package lusiiplugin.commands;
 
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
