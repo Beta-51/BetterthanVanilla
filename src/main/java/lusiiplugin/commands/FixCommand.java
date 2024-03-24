@@ -8,7 +8,7 @@ import net.minecraft.core.player.gamemode.Gamemode;
 
 public class FixCommand extends Command {
 	public FixCommand() {
-		super("fix", "");
+		super("fix");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
@@ -24,6 +24,6 @@ public class FixCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-
+		sender.sendMessage("/fix");
 	}
 }

@@ -64,11 +64,12 @@ public class PlayerHomesManager {
 				// Trim the filename to remove any leading or trailing whitespace
 				String fileName = homeFile.getName().trim();
 				if (fileName.startsWith(username)) {
-					String homeName = fileName.substring(username.length(), homeFile.getName().length() - 4).trim(); // remove ".txt"
+					// remove ".txt" and trailing spaces
+					String homeName = fileName.substring(username.length(), homeFile.getName().length() - 4).trim();
 					if (homeName.equals("bed")) {
 						homeName = "bedOld";
 					}
-					if (homeName.equals(username)) {
+					if (homeName.isEmpty()) {
 						homeName = "home";
 					}
 					List<String> lines = null;
@@ -89,7 +90,7 @@ public class PlayerHomesManager {
 			}
 
 			// 3. Write to HashMap
-			if (!allPlayerHomes.isEmpty()) {
+			if (ph.getAmount() > 0) {
 				allPlayerHomes.put(username, ph);
 			}
 		}
