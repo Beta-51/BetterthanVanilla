@@ -1,10 +1,17 @@
 package lusiiplugin;
 
+import lusiiplugin.utils.HomePosition;
+import lusiiplugin.utils.PlayerHomes;
+import lusiiplugin.utils.PlayerHomesManager;
 import lusiiplugin.utils.PlayerTPInfo;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
+import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.entity.player.EntityPlayerMP;
+import net.minecraft.server.net.handler.NetServerHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.util.GameStartEntrypoint;
@@ -14,13 +21,44 @@ import turniplabs.halplibe.util.toml.Toml;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
     public static final String MOD_ID = "betterthanvanilla";
+	public static final String SAVE_DIR = "lusiibtv";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final TomlConfigHandler CONFIG;
+	public static boolean enableSkyDimensionPortal;
+	public static int NickLength;
+	public static boolean enableAntiTrampleFence;
+	public static boolean RTPCommand;
+	public static int RTPCost;
+	public static boolean TPACommand;
+	public static int TPACost;
+	public static int TPTimeout;
+	public static boolean BackCommand;
+	public static boolean disableTrample;
+	public static int DisableTNTOverworld;
+	public static int DisableTNTNether;
+	public static int DisableTNTSky;
+	public static int addedTicksCatchable;
+	public static int maxHomes;
+	public static boolean disableBedExplosion;
+	public static boolean signEdit;
+	public static boolean headSit;
+	public static boolean colourChat;
+	public static boolean greenText;
+	public static boolean gamemodeAll;
+	public static boolean spawnCommand;
+	public static boolean giveCommand;
+	public static boolean homeCommand;
+	public static boolean staticFire;
+	public static boolean clearCommand;
+	public static boolean craftCommand;
+
 	static {
 		Toml toml = new Toml();
 		toml.addCategory("WorldUtils");
@@ -86,65 +124,85 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		greenText = CONFIG.getBoolean("PlayerUtils.greenText");
 		MOTD = CONFIG.getString("ServerUtils.MOTD");
 	}
-	public static boolean enableSkyDimensionPortal;
-	public static int NickLength;
-	public static boolean enableAntiTrampleFence;
-	public static boolean RTPCommand;
-	public static int RTPCost;
-	public static boolean TPACommand;
-	public static int TPACost;
-	public static int TPTimeout;
-	public static boolean BackCommand;
-	public static boolean disableTrample;
-	public static int DisableTNTOverworld;
-	public static int DisableTNTNether;
-	public static int DisableTNTSky;
-	public static int addedTicksCatchable;
-	public static int maxHomes;
-	public static boolean disableBedExplosion;
-	public static boolean signEdit;
-	public static boolean headSit;
-	public static boolean colourChat;
-	public static boolean greenText;
-	public static boolean gamemodeAll;
-	public static boolean spawnCommand;
-	public static boolean giveCommand;
-	public static boolean homeCommand;
-	public static boolean staticFire;
-	public static boolean clearCommand;
 
-	public static boolean craftCommand;
 	public static String MOTD;
 	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
+	private static PlayerHomesManager homeManager;
 	public static final Set<String> vanished = new HashSet();
 	public static File vanishedFile;
 
 	@Override
-    public void onInitialize() {
-
-		MinecraftServer server = MinecraftServer.getInstance();
-		String subdirectory = "player-homes";
-
-
-        // Create the subdirectory if it doesn't exist
-		File directory = new File(subdirectory);
-		if (!directory.exists()) {
-			directory.mkdirs(); // Create the directory and its parent directories if necessary
-		}
-
-		String vanishFile = "vanished.txt";
-
-		// Create the subdirectory if it doesn't exist
-        vanishedFile = new File(vanishFile);
-
-        LOGGER.info("Better than Vanilla initialized.");
-
+	public void onInitialize() {
 		if (enableSkyDimensionPortal) {
-				((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
+			((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
 		}
 
+		Path saveDirPath = Paths.get(SAVE_DIR);
+		if (!Files.exists(saveDirPath)) {
+			try {
+				Files.createDirectories(saveDirPath);
+				System.out.println("created" + saveDirPath);
+			} catch (IOException e) {
+				LOGGER.error("Could not create save directory: " + SAVE_DIR, e);
+				System.out.println("Could not create save directory: " + SAVE_DIR);
 
-    }
+				return; // Exit if the directory cannot be created
+			}
+		}
+
+		homeManager = new PlayerHomesManager();
+
+		LOGGER.info("Better than Vanilla initialized.");
+	}
+
+	public static void convertOldHomes() {
+		homeManager.importOldHomes();
+	}
+
+	public static PlayerHomes getPlayerHomes(EntityPlayer p) {
+		return homeManager.getPlayerHomes(p);
+	}
+
+	public static void savePlayerHomes() {
+		homeManager.save();
+	}
+
+	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
+		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
+	}
+
+	public static void teleport(EntityPlayer p, double x, double y, double z) {
+		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
+		s.teleport(x, y, z);
+		p.moveTo(x, y, z, p.yRot, p.xRot);
+	}
+
+	public static void teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
+		NetServerHandler hs = ((EntityPlayerMP) startPlayer).playerNetServerHandler;
+		NetServerHandler he = ((EntityPlayerMP) endPlayer).playerNetServerHandler;
+		double x = endPlayer.x;
+		double y = endPlayer.y;
+		double z = endPlayer.z;
+		float xr = endPlayer.xRot;
+		float yr = endPlayer.yRot;
+		hs.teleport(x, y, z);
+		startPlayer.moveTo(x, y, z, yr, xr);
+		// Show the teleported player to the accepting player instantly
+		// instead of waiting on the server to send it
+		he.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
+	}
+
+	public static void teleport(EntityPlayer p, Vec3d pos) {
+		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
+		s.teleport(pos.xCoord, pos.yCoord, pos.zCoord);
+		p.moveTo( pos.xCoord, pos.yCoord, pos.zCoord, p.yRot, p.xRot);
+	}
+
+	public static void teleport(EntityPlayer p, HomePosition h) {
+		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
+		s.teleport(h.x, h.y, h.z);
+		p.moveTo(h.x, h.y, h.z, p.yRot, p.xRot);
+	}
 
 	public static void vanishPlayer(String s) {
 		vanished.add(s.toLowerCase());
@@ -157,10 +215,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 	public static List<String> readVanishedFileLines() throws IOException {
 		return Files.readAllLines(vanishedFile.toPath());
-	}
-
-	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
-		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
 	}
 
 	private static void writeVanishedPlayers() {
@@ -212,7 +266,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public void afterGameStart() {
 		MinecraftServer mcs = MinecraftServer.getInstance();
 		mcs.motd = MOTD;
-
 	}
 	@Override
 	public void onRecipesReady() {

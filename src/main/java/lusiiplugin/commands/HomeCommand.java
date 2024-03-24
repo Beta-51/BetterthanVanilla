@@ -1,64 +1,69 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.HomePosition;
+import lusiiplugin.utils.PlayerHomes;
 import lusiiplugin.utils.PlayerTPInfo;
-import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.entity.projectile.EntityArrow;
 import net.minecraft.core.net.command.*;
-import net.minecraft.core.net.packet.Packet34EntityTeleport;
-import net.minecraft.core.util.phys.Vec3d;
-import net.minecraft.core.world.World;
+import net.minecraft.core.net.packet.Packet61PlaySoundEffect;
+import net.minecraft.core.world.chunk.ChunkCoordinates;
 import net.minecraft.server.entity.player.EntityPlayerMP;
+import net.minecraft.server.net.handler.NetServerHandler;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Objects;
-
-import static java.lang.Math.floor;
-import static net.minecraft.core.net.command.commands.TeleportCommand.teleport;
+import java.util.Optional;
 
 public class HomeCommand extends Command {
 	public HomeCommand() {
-		super("home", "");
+		super("home");
 	}
-	static List<String> lines;
-
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		EntityPlayer player;
-		StringBuilder builder = new StringBuilder();
-		for(int i = 0; i < args.length; ++i) {
-			builder.append(args[i]).append(" ");
-		}
-		String subdirectory = "player-homes";
-		if (args.length == 0 || builder.toString().equalsIgnoreCase("home")) {
-			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
-			File file = new File(filePath);
-			if (!file.exists()) {
-				sender.sendMessage("§4You do not have a home!");
-				return false;
-			}
-			lines = readTxtLinesUnnamed(sender.getPlayer().username);
+		EntityPlayer p = sender.getPlayer();
+		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
+		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
+
+		String homeName;
+		if (args.length > 0) {
+			homeName = String.join(" ", args);
 		} else {
-			String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
-			File file = new File(filePath);
-			if (!file.exists()) {
-				sender.sendMessage("§4That home does not exist!");
-				return false;
+			homeName = "home";
+		}
+
+		Optional<HomePosition> homePos;
+		if (homeName.equals("bed")) {
+			ChunkCoordinates b = p.getPlayerSpawnCoordinate();
+			if (b == null) {
+				sender.sendMessage("§1You do not have a bed! You should work on that!");
+				return true;
 			}
-			lines = readTxtLines(String.valueOf(builder),sender.getPlayer().username);
+			homePos = Optional.of(new HomePosition(b.x, b.y+0.6, b.z, 0));
+		} else {
+			homePos = homes.getHomePos(homeName);
 		}
-		player = sender.getPlayer();
-		boolean didTP = teleport(handler, sender, player, Integer.parseInt(lines.get(3)), Double.parseDouble(lines.get(0)), Double.parseDouble(lines.get(1)), Double.parseDouble(lines.get(2)), (double)player.yRot, (double)player.xRot, (EntityPlayer)null);
-		if (didTP) {
-			sender.sendMessage("§4Teleported to §1" + args[0]);
+
+		if (!homePos.isPresent()) {
+			sender.sendMessage("§1You do not have a home named: §4" + homeName);
+			sender.sendMessage("§1View your homes with: §3/homes");
+			return true;
 		}
+
+		if (tpInfo.canTP()) {
+			tpInfo.update(p);
+			HomePosition h = homePos.get();
+			LusiiPlugin.teleport(p, h);
+			sender.sendMessage("§4Teleported to §1" + homeName);
+		} else {
+			int waitTime = tpInfo.cooldown();
+			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
+		}
+
 		return true;
+
 	}
-
-
 
 	public EntityPlayer getPlayer(CommandHandler handler, String name) {
 		EntityPlayer player = handler.getPlayer(name);
@@ -69,69 +74,11 @@ public class HomeCommand extends Command {
 		}
 	}
 
-	// returns true if tp is successful
-	public static boolean teleport(CommandHandler handler, CommandSender sender, EntityPlayer p1, Integer dimension, double x, double y, double z, double yaw, double pitch, EntityPlayer p2) {
-		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p1);
-
-		if (tpInfo.canTP()) {
-			tpInfo.update(p1);
-
-			if (p1 instanceof EntityPlayerMP) {
-				EntityPlayerMP p1MP = (EntityPlayerMP)p1;
-				if (dimension != null && p1MP.dimension != dimension && handler instanceof ServerCommandHandler) {
-					ServerCommandHandler serverCommandHandler = (ServerCommandHandler)handler;
-					serverCommandHandler.minecraftServer.playerList.sendPlayerToOtherDimension(p1MP, dimension);
-				}
-
-				p1MP.playerNetServerHandler.teleportAndRotate(x, y, z, p1MP.yRot, p1MP.xRot);
-			} else {
-				p1.absMoveTo(x, y, z, p1.yRot, p1.xRot);
-			}
-			return true;
-		} else {
-			int waitTime = tpInfo.cooldown();
-			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
-		}
-		return false;
-	}
-
-
-
-
 	public boolean opRequired(String[] args) {
 		return !LusiiPlugin.homeCommand;
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("/home [home]");
-	}
-	private List<String> readTxtLinesUnnamed(String username) {
-		String subdirectory = "player-homes";
-		String filePath = subdirectory + File.separator + username + ".txt";
-		File file = new File(filePath);
-		if (!file.exists()) {
-			return null;
-		}
-		try {
-			return Files.readAllLines(file.toPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-
-	private List<String> readTxtLines(String name, String username) {
-		String subdirectory = "player-homes";
-		String filePath = subdirectory + File.separator + username + name + ".txt";
-		File file = new File(filePath);
-		if (!file.exists()) {
-			return null;
-		}
-		try {
-			return Files.readAllLines(file.toPath());
-		} catch (IOException e) {
-			e.printStackTrace();
-			return null;
-		}
 	}
 }

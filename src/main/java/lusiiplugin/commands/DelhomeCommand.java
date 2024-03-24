@@ -1,9 +1,13 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerHomes;
+import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
+import net.minecraft.core.net.packet.Packet11PlayerPosition;
+import net.minecraft.server.entity.player.EntityPlayerMP;
 
 import java.io.File;
 
@@ -13,36 +17,31 @@ public class DelhomeCommand extends Command {
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		StringBuilder builder = new StringBuilder();
-		for(int i = 0; i < args.length; ++i) {
-			builder.append(args[i]).append(" ");
+		EntityPlayer p = sender.getPlayer();
+		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
+
+		String homeName;
+		if (args.length > 0) {
+			homeName = String.join(" ", args);
+		} else {
+			homeName = "home";
 		}
-		String subdirectory = "player-homes";
-		if (args.length == 0 || builder.toString().equals("home")) {
-			String filePath = subdirectory + File.separator + sender.getPlayer().username + ".txt";
-			File file = new File(filePath);
-			if (file.exists()) {
-				file.delete();
-				sender.sendMessage("§4Successfully deleted your home!");
-				return true;
-			}
-			sender.sendMessage("§4You do not have a home set!");
+
+		if (homeName.equals("bed")) {
+			sender.sendMessage("§4This home is reserved for your bed.");
 			return true;
 		}
-		String filePath = subdirectory + File.separator + sender.getPlayer().username + builder + ".txt";
-		File file = new File(filePath);
-		if (file.exists()) {
-			file.delete();
-			sender.sendMessage("§4Deleted home " + builder + "!");
-			return true;
+
+
+		if (homes.delHome(homeName)) {
+			sender.sendMessage("§4Removed home: §1" + homeName);
+			LusiiPlugin.savePlayerHomes();
+		} else {
+			sender.sendMessage("§4You don't have a home named: §1" + homeName);
+			sender.sendMessage("§4Use: §3/sethome " + homeName + "§4 to create");
 		}
-		sender.sendMessage("§4You do not have a home named " + builder + "!");
 		return true;
 	}
-
-
-
-
 
 	public boolean opRequired(String[] args) {
 		return !LusiiPlugin.homeCommand;

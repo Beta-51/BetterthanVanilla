@@ -1,15 +1,10 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.item.Item;
-import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 import net.minecraft.core.player.gamemode.Gamemode;
-
-import static net.minecraft.core.net.command.commands.GiveCommand.givePlayerItem;
 
 public class FixCommand extends Command {
 	public FixCommand() {

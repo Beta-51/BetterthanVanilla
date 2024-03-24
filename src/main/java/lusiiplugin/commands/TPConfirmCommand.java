@@ -63,18 +63,11 @@ public class TPConfirmCommand extends Command {
 		PlayerTPInfo startInfo = LusiiPlugin.getTPInfo(startPlayer);
 		startInfo.update(startPlayer);
 
-		startPlayer.moveTo(endPlayer.x, endPlayer.y, endPlayer.z, endPlayer.yRot, endPlayer.xRot);
-
-		// Show the teleported player to the accepting player instantly
-		// instead of waiting on the server to send it
-		((EntityPlayerMP) endPlayer)
-			.playerNetServerHandler
-			.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
+		LusiiPlugin.teleport(startPlayer, endPlayer);
 
 		startPlayer.score -= LusiiPlugin.TPACost;
 
 		handler.sendMessageToPlayer(startPlayer, "§1Teleported to " + endPlayer.getDisplayName());
-
 
 		return true;
 	}

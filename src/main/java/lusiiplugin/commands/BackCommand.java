@@ -16,6 +16,7 @@ public class BackCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
+		sender.sendMessage("/back");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
@@ -34,14 +35,7 @@ public class BackCommand extends Command {
 				Vec3d lastPos = tpInfo.getLastPos();
 
                 tpInfo.update(p);
-
-				p.moveTo(
-					lastPos.xCoord,
-					lastPos.yCoord,
-					lastPos.zCoord,
-					p.yRot,
-					p.xRot
-				);
+				LusiiPlugin.teleport(p, lastPos);
 
 				sender.sendMessage("§4Went back.");
 			} else {

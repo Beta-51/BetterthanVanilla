@@ -41,17 +41,23 @@ public class RTPCommand extends Command {
 
 		tpInfo.update(p);
 
-		handler.asServer()
-			.minecraftServer
-			.playerList
-			.sendPacketToPlayer(
-				p.username,
-				new Packet9Respawn((byte) p.dimension, (byte) 0)
-			);
+//		handler.asServer()
+//			.minecraftServer
+//			.playerList
+//			.sendPacketToPlayer(
+//				p.username,
+//				new Packet9Respawn((byte) p.dimension, (byte) 0)
+//			);
+//
+//		((EntityPlayerMP) p)
+//			.playerNetServerHandler
+//			.teleportAndRotate(randX, 256, randZ, p.yRot, p.xRot);
 
-		((EntityPlayerMP) p)
-			.playerNetServerHandler
-			.teleportAndRotate(randX, 256, randZ, p.yRot, p.xRot);
+		((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
+			new Packet9Respawn((byte) p.dimension, (byte) 0)
+		);
+
+		LusiiPlugin.teleport(p, randX, 256, randZ);
 
 		sender.sendMessage("Teleported!");
 
