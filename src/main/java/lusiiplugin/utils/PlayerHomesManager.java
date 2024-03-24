@@ -10,15 +10,12 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 
 public class PlayerHomesManager {
 	private HashMap<String, PlayerHomes> allPlayerHomes;
 	private Path filePath;
-
 
 	public PlayerHomesManager() {
 		filePath = Paths.get(LusiiPlugin.SAVE_DIR).resolve("homes.ser");
@@ -54,20 +51,25 @@ public class PlayerHomesManager {
 			System.out.println("No old homes found");
 			return;
 		}
+		System.out.println("Migrating homes...");
+
 
 		// 1. Read Player Usernames
 		for (File playerFile : playersDir.listFiles()) {
 			String username = playerFile.getName().replace(".dat", "");
 
 			// 2. Read Home Files
-			HashMap<String, HomePosition> userHomes = new HashMap<>();
+			PlayerHomes ph = PlayerHomes.blank();
 			for (File homeFile : homesDir.listFiles()) {
 				// Trim the filename to remove any leading or trailing whitespace
-				String trimmedFileName = homeFile.getName().trim();
-				if (trimmedFileName.startsWith(username)) {
-					String homeName = trimmedFileName.substring(username.length(), homeFile.getName().length() - 5); // remove " .txt"
+				String fileName = homeFile.getName().trim();
+				if (fileName.startsWith(username)) {
+					String homeName = fileName.substring(username.length(), homeFile.getName().length() - 4).trim(); // remove ".txt"
 					if (homeName.equals("bed")) {
 						homeName = "bedOld";
+					}
+					if (homeName.equals(username)) {
+						homeName = "home";
 					}
 					List<String> lines = null;
 					try {
@@ -81,14 +83,14 @@ public class PlayerHomesManager {
 						double z = Double.parseDouble(lines.get(2));
 						int dim = Integer.parseInt(lines.get(3));
 						System.out.println(username + " " + homeName + " " + x + " " + y + " " + z);
-						userHomes.put(homeName, new HomePosition(x, y, z, dim));
+						ph.addHome(homeName, x, y, z, dim);
 					}
 				}
 			}
 
 			// 3. Write to HashMap
 			if (!allPlayerHomes.isEmpty()) {
-				allPlayerHomes.put(username, PlayerHomes.fromMap(userHomes));
+				allPlayerHomes.put(username, ph);
 			}
 		}
 

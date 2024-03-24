@@ -41,6 +41,10 @@ public class PlayerHomes implements Serializable {
 		return true;
 	}
 
+	public void addHome(String name, double x, double y, double z, int dim) {
+		userHomes.put(name, new HomePosition(x, y, z, dim));
+	}
+
 	/**
 	 * @return <code>true</code> if the home was removed, <code>false</code> if the home does not exist.
 	 */

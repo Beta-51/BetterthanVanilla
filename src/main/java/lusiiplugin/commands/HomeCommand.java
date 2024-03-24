@@ -36,6 +36,10 @@ public class HomeCommand extends Command {
 		Optional<HomePosition> homePos;
 		if (homeName.equals("bed")) {
 			ChunkCoordinates b = p.getPlayerSpawnCoordinate();
+			if (b == null) {
+				sender.sendMessage("§1You do not have a bed! You should work on that!");
+				return true;
+			}
 			homePos = Optional.of(new HomePosition(b.x, b.y+0.6, b.z, 0));
 		} else {
 			homePos = homes.getHomePos(homeName);

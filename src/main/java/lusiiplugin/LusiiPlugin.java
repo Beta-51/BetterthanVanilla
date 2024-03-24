@@ -266,7 +266,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public void afterGameStart() {
 		MinecraftServer mcs = MinecraftServer.getInstance();
 		mcs.motd = MOTD;
-
 	}
 	@Override
 	public void onRecipesReady() {
