@@ -20,15 +20,16 @@ import turniplabs.halplibe.util.TomlConfigHandler;
 import turniplabs.halplibe.util.toml.Toml;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
-
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
     public static final String MOD_ID = "betterthanvanilla";
 	public static final String SAVE_DIR = "lusiibtv";
+	public static final String CFG_DIR = "config";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final TomlConfigHandler CONFIG;
 	public static boolean enableSkyDimensionPortal;
@@ -128,6 +129,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static String MOTD;
 	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
 	private static PlayerHomesManager homeManager;
+	public static List<String> infoText;
 	public static final Set<String> vanished = new HashSet();
 	public static File vanishedFile;
 
@@ -135,24 +137,148 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public void onInitialize() {
 		if (enableSkyDimensionPortal) {
 			((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
+
 		}
+
+		System.out.println();
+		System.out.println("Better than Vanilla loading.");
+		System.out.println();
+
+		initInfo();
 
 		Path saveDirPath = Paths.get(SAVE_DIR);
 		if (!Files.exists(saveDirPath)) {
 			try {
 				Files.createDirectories(saveDirPath);
-				System.out.println("created" + saveDirPath);
+				System.out.println("Created /" + saveDirPath +"/ for BTV data files");
 			} catch (IOException e) {
-				LOGGER.error("Could not create save directory: " + SAVE_DIR, e);
 				System.out.println("Could not create save directory: " + SAVE_DIR);
-
 				return; // Exit if the directory cannot be created
 			}
 		}
 
 		homeManager = new PlayerHomesManager();
+		System.out.println();
+		System.out.println("Better than Vanilla initialized.");
+		System.out.println();
+	}
 
-		LOGGER.info("Better than Vanilla initialized.");
+	private static void initInfo() {
+		Path filePath = Paths.get(CFG_DIR).resolve("BetterThanVanillaInfo.txt");
+
+		// If the file does exist, make it.
+		if (!Files.exists(filePath)) {
+			try {
+				System.out.println("BetterThanVanillaInfo.txt does not exist. Creating it for you...");
+				Files.write(filePath,
+					Arrays.asList(
+						"<aqua>Thanks for installing lusii's plugin!<r>",
+						"<aqua>this is an automatically generated message<r>",
+						"<aqua>and you may customize it in the config folder!<r>",
+						"<aqua>Once you have modified this file re-run <b>/info<r><aqua>!<r>",
+						"",
+						"/// ---------------================= INFO SYNTAX =================--------------- ",
+						"///",
+						"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
+						"///",
+						"/// - Use html like tags for formatting",
+						"/// Example: <red><b>BOLD RED<r> normal text",
+						"///",
+						"///  Color tags: ",
+						"///             ┌─────────┬─────────┬────────┬────────┬─────────┐",
+						"///             │ white   │ gray    │ grey   │ silver │ black   │",
+						"///             ├─────────┼─────────┼────────┼────────┼─────────┤",
+						"///             │ red     │ orange  │ yellow │ green  │ blue    │",
+						"///             ├─────────┼─────────┼────────┼────────┼─────────┤",
+						"///             │ purple  │ brown   │ cyan   │ lime   │ aqua    │",
+						"///             ├─────────┴─────────┼────────┬────────┼─────────┤",
+						"///             │ b = bold          │        │ pink   │ magenta │",
+						"///             ├───────────────────┼────────┴────────┴─────────┤",
+						"///             │ i = italics       │ s = strike                │",
+						"///             ├───────────────────┼─────────────────┬─────────┤",
+						"///             │ u = underline     │ o = obfuscated  │         │",
+						"///             ├───────────────────┼────────┬────────┼─────────┤",
+						"///             │ r / reset = reset │        │        │         │",
+						"///             └───────────────────┴────────┴────────┴─────────┘"
+					),
+					StandardCharsets.UTF_8
+				);
+				System.out.println();
+				System.out.println("Done! Check your config folder for BetterThanVanillaInfo.txt!");
+				System.out.println("Once you modify it you do not have to restart the server!");
+				System.out.println("For colour coding look at /colours!");
+				System.out.println("You can also edit what commands and features people have access to!");
+				System.out.println("Edit the betterthanvanilla.cfg file in the config folder!");
+				System.out.println("You will have to restart the server if you change this config file!");
+			} catch (IOException e) {
+				System.err.println("Error creating file: " + e.getMessage());
+				return; // Exit if file creation fails
+			}
+		}
+
+		ArrayList<String> infoFileLines;
+
+		// Read the file content if the file exists
+		try {
+			List<String> lines = Files.readAllLines(filePath);
+			infoFileLines = new ArrayList<>(lines);
+			System.out.println("File content loaded.");
+		} catch (IOException e) {
+			System.err.println("Error reading file: " + e.getMessage());
+			return;
+		}
+
+		// Pretty colors!
+		HashMap<String, String> colorMap = new HashMap<>();
+		colorMap.put("white", "0");
+		colorMap.put("orange", "1");
+		colorMap.put("magenta", "2");
+		colorMap.put("aqua", "3");
+		colorMap.put("yellow", "4");
+		colorMap.put("lime", "5");
+		colorMap.put("pink", "6");
+		colorMap.put("grey", "7");
+		colorMap.put("gray", "7");
+		colorMap.put("silver", "8");
+		colorMap.put("cyan", "9");
+		colorMap.put("purple", "a");
+		colorMap.put("blue", "b");
+		colorMap.put("brown", "c");
+		colorMap.put("green", "d");
+		colorMap.put("red", "e");
+		colorMap.put("black", "f");
+		colorMap.put("obf", "k");
+		colorMap.put("b", "l");
+		colorMap.put("s", "m");
+		colorMap.put("u", "n");
+		colorMap.put("i", "o");
+		colorMap.put("r", "r");
+		colorMap.put("reset", "r");
+
+		List<String> infoLines = new ArrayList<>();
+
+		try {
+			List<String> lines = Files.readAllLines(filePath);
+			for (String line : lines) {
+				// Skip comments
+				if (line.trim().startsWith("///")) continue;
+				// Handle escaping
+				line = line.replaceAll("\\\\<", "ESCAPED_LT").replaceAll("\\\\>", "ESCAPED_GT");
+				// Process color tags
+				for (String color : colorMap.keySet()) {
+					line = line.replaceAll("<" + color + ">", "§" + colorMap.get(color));
+				}
+				// Revert escaped characters
+				line = line.replaceAll("ESCAPED_LT", "<").replaceAll("ESCAPED_GT", ">");
+
+				infoLines.add(line);
+			}
+		} catch (IOException e) {
+			System.err.println("Error reading file: " + e.getMessage());
+		}
+
+		infoText = infoLines;
+
 	}
 
 	public static void convertOldHomes() {
@@ -236,32 +362,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 
 	@Override
 	public void beforeGameStart() {
-
 	}
-	//Code taken from playerlogger plugin. I needed it. Seriously. I would've thrown something if i didn't have something to go off of.
-	public static void homesUtil(String fileContents, String fileName) {
-		try {
-			// Specify the subdirectory and file name
-			String subdirectory = "player-homes";
-			String filePath = subdirectory + File.separator + fileName + ".txt";
 
-			// Create the subdirectory if it doesn't exist
-			File directory = new File(subdirectory);
-			if (!directory.exists()) {
-				directory.mkdirs(); // Create the directory and its parent directories if necessary
-			}
-
-			// Use FileWriter constructor with "true" to enable append mode
-			FileWriter myWriter = new FileWriter(filePath, true);
-
-			// changed sysout formatting -MilkFrog
-			myWriter.write(fileContents + "\n");
-			myWriter.close();
-		} catch (IOException e) {
-			System.out.println("A big bad error occurred.");
-			e.printStackTrace();
-		}
-	}
 	@Override
 	public void afterGameStart() {
 		MinecraftServer mcs = MinecraftServer.getInstance();

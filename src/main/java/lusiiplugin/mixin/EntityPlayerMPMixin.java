@@ -17,6 +17,7 @@ import net.minecraft.server.world.PlayerController;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.struct.InjectionInfo;
@@ -55,10 +56,14 @@ public class EntityPlayerMPMixin extends EntityPlayer implements ICrafting {
 	private int currentWindowId = 0;
 	@Shadow
 	public boolean isChangingQuantityOnly;
-
+	@Unique
+	protected int afkTime;
 
 	public EntityPlayerMPMixin(MinecraftServer minecraftserver, World world, String s, PlayerController iteminworldmanager) {
 		super(world);
+
+
+
 		iteminworldmanager.player = this;
 		this.playerController = iteminworldmanager;
 		ChunkCoordinates chunkcoordinates = world.getSpawnPoint();
