@@ -163,7 +163,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		System.out.println();
 	}
 
-	private static void initInfo() {
+	public static void initInfo() {
 		Path filePath = Paths.get(CFG_DIR).resolve("BetterThanVanillaInfo.txt");
 
 		// If the file does exist, make it.
