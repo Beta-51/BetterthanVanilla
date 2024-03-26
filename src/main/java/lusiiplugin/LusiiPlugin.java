@@ -182,30 +182,31 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 						"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
 						"///",
 						"/// - Use html like tags for formatting",
-						"/// Example: <red><b>BOLD RED<r> normal text",
+						"///    Example: <red><b>BOLD RED<r> normal text",
+						"/// - You can escape the '<' and '>' symbols with a '\\'",
+						"///    Example: \\<blue>",
 						"///",
-						"///  Color tags: ",
-						"///             ┌─────────┬─────────┬────────┬────────┬─────────┐",
-						"///             │ white   │ gray    │ grey   │ silver │ black   │",
-						"///             ├─────────┼─────────┼────────┼────────┼─────────┤",
-						"///             │ red     │ orange  │ yellow │ green  │ blue    │",
-						"///             ├─────────┼─────────┼────────┼────────┼─────────┤",
-						"///             │ purple  │ brown   │ cyan   │ lime   │ aqua    │",
-						"///             ├─────────┴─────────┼────────┬────────┼─────────┤",
-						"///             │ b = bold          │        │ pink   │ magenta │",
-						"///             ├───────────────────┼────────┴────────┴─────────┤",
-						"///             │ i = italics       │ s = strike                │",
-						"///             ├───────────────────┼─────────────────┬─────────┤",
-						"///             │ u = underline     │ o = obfuscated  │         │",
-						"///             ├───────────────────┼────────┬────────┼─────────┤",
-						"///             │ r / reset = reset │        │        │         │",
-						"///             └───────────────────┴────────┴────────┴─────────┘"
+						"///  Formatting tags: ",
+						"///             +-----------------------------------------------+",
+						"///             | white   | gray    | grey   | silver | black   |",
+						"///             |---------+---------+--------+--------+---------|",
+						"///             | red     | orange  | yellow | green  | blue    |",
+						"///             |---------+---------+--------+--------+---------|",
+						"///             | purple  | brown   | cyan   | lime   | aqua    |",
+						"///             |---------+---------+--------+--------+---------|",
+						"///             | b = bold          |        | pink   | magenta |",
+						"///             |-------------------+--------+--------+---------+",
+						"///             | i = italics       | s = strike      |",
+						"///             |-------------------+-----------------|",
+						"///             | u = underline     | o = obfuscated  |",
+						"///             |-------------------+-----------------|",
+						"///             | r / reset = reset |",
+						"///             +-------------------+"
 					),
 					StandardCharsets.UTF_8
 				);
 				System.out.println();
 				System.out.println("Done! Check your config folder for BetterThanVanillaInfo.txt!");
-				System.out.println("Once you modify it you do not have to restart the server!");
 				System.out.println("For colour coding look at /colours!");
 				System.out.println("You can also edit what commands and features people have access to!");
 				System.out.println("Edit the betterthanvanilla.cfg file in the config folder!");
@@ -214,18 +215,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 				System.err.println("Error creating file: " + e.getMessage());
 				return; // Exit if file creation fails
 			}
-		}
-
-		ArrayList<String> infoFileLines;
-
-		// Read the file content if the file exists
-		try {
-			List<String> lines = Files.readAllLines(filePath);
-			infoFileLines = new ArrayList<>(lines);
-			System.out.println("File content loaded.");
-		} catch (IOException e) {
-			System.err.println("Error reading file: " + e.getMessage());
-			return;
 		}
 
 		// Pretty colors!
