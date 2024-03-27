@@ -22,7 +22,6 @@ public final class CommandsMixin {
 			commands.add(new InfoCommand());
 			commands.add(new SitCommand());
 			commands.add(new ColoursCommand());
-			commands.add(new FixCommand());
 			commands.add(new SethomeCommand());
 			commands.add(new DelhomeCommand());
 			commands.add(new HomeCommand());

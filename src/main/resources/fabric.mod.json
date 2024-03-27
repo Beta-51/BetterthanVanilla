@@ -1,12 +1,13 @@
 {
   "schemaVersion": 1,
   "id": "betterthanvanilla",
-  "version": "1.6",
+  "version": "${version}",
 
   "name": "Better than Vanilla",
   "description": "The plugin that makes your server complete.",
   "authors": [
-    "Lusii"
+    "Lusii",
+		"Wyspr"
   ],
   "contact": {
     "homepage": "",
@@ -36,7 +37,7 @@
   ],
 
   "depends": {
-		"minecraft": "~7.1-beta.1",
+		"minecraft": "~7.1-beta.2",
     "fabricloader": ">=0.13.3"
   },
   "suggests": {

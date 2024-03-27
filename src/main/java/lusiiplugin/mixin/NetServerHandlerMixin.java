@@ -61,18 +61,11 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	public void log(String string) {
 	}
 
-	public List<Integer> getVanishedEntityIds() throws IOException {
-		List<Integer> playerEntitiesVanishedIDs = new ArrayList<>();
-		for (int i = 0; i < LusiiPlugin.readVanishedFileLines().size(); i++) {
-			playerEntitiesVanishedIDs.add(mcServer.playerList.getPlayerEntity(LusiiPlugin.readVanishedFileLines().get(i)).id);
-		}
-		return playerEntitiesVanishedIDs;
-	}
+
+
 
 	@Overwrite
 	public void sendPacket(Packet packet) {
-
-
 		this.netManager.addToSendQueue(packet);
 		this.field_22004_g = this.field_15_f;
 	}
@@ -360,7 +353,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 				int y = packet.yPosition;
 				l = packet.zPosition;
 				TileEntitySign tileEntity = (TileEntitySign)tileentity;
-				System.out.println("Sign placed by "+ this.playerEntity.username+" at "+ i + 0.5 + ", " + y + 0.5 + ", " + l + 0.5);
+				System.out.println("Sign placed by "+ this.playerEntity.username+" at "+ i + ", " + y + ", " + l);
 				System.out.println("Contains text: " + Arrays.toString(packet.signLines));
 				for(int j1 = 0; j1 < 4; ++j1) {
 					tileEntity.signText[j1] = packet.signLines[j1];
@@ -455,20 +448,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	}
 
 
-	@Overwrite
-	public void handleSendInitialPlayerList() {
-		Iterator var1 = this.mcServer.playerList.playerEntities.iterator();
-		while(var1.hasNext()) {
-			EntityPlayerMP entityPlayerMP = (EntityPlayerMP)var1.next();
-			if (LusiiPlugin.vanished.contains(entityPlayerMP.username)) {
-
-			} else {
-				this.sendPacket(new Packet72UpdatePlayerProfile(entityPlayerMP.username, entityPlayerMP.nickname, entityPlayerMP.score, entityPlayerMP.chatColor, true, entityPlayerMP.isOperator()));
-			}
-		}
-	}
-
-
 
 
     @Overwrite
@@ -538,22 +517,23 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
 		ItemStack itemstack = this.playerEntity.inventory.getCurrentItem();
 
-		if (this.playerEntity.health <= 0) {
+
+		if (this.playerEntity.getHealth() <= 0) {
 			System.out.println(this.playerEntity.username + " tried to place a block while dead");
 			this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"§e§lHey!§r You cannot do that. §5Respawn§r.");
 			return;
 		}
 
 
-		if (itemstack != null) {
-			if (itemstack == Item.dye.getDefaultStack()) {
-				if (itemstack.getMetadata() > 15 || itemstack.getMetadata() < 0) {
-					this.playerEntity.inventory.mainInventory[this.playerEntity.inventory.currentItem] = null;
-					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"§eIllegal item!");
-					return;
-				}
-			}
-		}
+		//if (itemstack != null) {
+		//	if (itemstack == Item.dye.getDefaultStack()) {
+		//		if (itemstack.getMetadata() > 15 || itemstack.getMetadata() < 0) {
+		//			this.playerEntity.inventory.mainInventory[this.playerEntity.inventory.currentItem] = null;
+		//			this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"§eIllegal item!");
+		//			return;
+		//		}
+		//	}
+		//}
 		boolean flag = worldserver.field_819_z = worldserver.dimension.id != 0 || this.mcServer.playerList.isOp(this.playerEntity.username);
 		if (packet.direction == Direction.NONE) {
 			if (itemstack == null) {
@@ -613,10 +593,11 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	}
 	@Overwrite
 	public void handleRespawn(Packet9Respawn packet) {
-		if (this.playerEntity.health <= 0) {
+		if (this.playerEntity.getHealth() <= 0) {
 			int score = this.playerEntity.score;
 			this.playerEntity = this.mcServer.playerList.recreatePlayerEntity(this.playerEntity, 0);
-			this.playerEntity.score = score;
+			double scoreD = score;
+			this.playerEntity.score = (int) (scoreD * LusiiPlugin.deathCost);
 		}
 	}
 
@@ -625,7 +606,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
         int x = packet.xPosition;
         int y = packet.yPosition;
         int z = packet.zPosition;
-        if (this.playerEntity.health <= 0) {
+        if (this.playerEntity.getHealth() <= 0) {
             System.out.println(this.playerEntity.username + " tried to break a block while dead");
             this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You cannot do that. §5Respawn§r.");
             return;
@@ -694,8 +675,8 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 	public String getUsername() {
 		return null;
 	}
-	@Shadow
+
 	public boolean isServerHandler() {
-		return false;
+		return true;
 	}
 }

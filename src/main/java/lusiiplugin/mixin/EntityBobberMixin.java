@@ -214,7 +214,7 @@ public class EntityBobberMixin extends Entity {
 								this.ticksCatchable = this.random.nextInt(30) + 10 + LusiiPlugin.addedTicksCatchable;
 							}
 							this.yd -= 0.20000000298023224;
-							this.world.playSoundAtEntity(this, "random.splash", 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
+							this.world.playSoundAtEntity((Entity)null, this, "random.splash", 0.25F, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
 							float f3 = (float)MathHelper.floor_double(this.bb.minY);
 
 							int j1;

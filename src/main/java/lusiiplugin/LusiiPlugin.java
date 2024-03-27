@@ -24,14 +24,15 @@ import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
-    public static final String MOD_ID = "betterthanvanilla";
+	public static final String MOD_ID = "betterthanvanilla";
 	public static final String SAVE_DIR = "lusiibtv";
 	public static final String CFG_DIR = "config";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final TomlConfigHandler CONFIG;
 	public static boolean enableSkyDimensionPortal;
 	public static int NickLength;
 	public static boolean enableAntiTrampleFence;
+	public static double deathCost;
 	public static boolean RTPCommand;
 	public static int RTPCost;
 	public static boolean TPACommand;
@@ -69,6 +70,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("WorldUtils.DisableTNTSky", "Disable TNT in the sky dimension after y level. 0 = no TNT", 256);
 		toml.addEntry("WorldUtils.EnableAntiTrampleFences", "Re-enable farmland trample prevention by putting fences under them", false);
 		toml.addEntry("WorldUtils.DisableTrample", "Completely disables trampling crops", false);
+		toml.addEntry("WorldUtils.DeathCost", "Points taken upon death, will be multiplied with this number.", 0.95);
 		toml.addCategory("Commands");
 		toml.addEntry("Commands.Give", "Let non-opped players use /give.", false);
 		toml.addEntry("Commands.Home", "Let non-opped players use /home commands.", true);
@@ -102,6 +104,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		DisableTNTSky = CONFIG.getInt("WorldUtils.DisableTNTSky");
 		enableAntiTrampleFence = CONFIG.getBoolean("WorldUtils.EnableAntiTrampleFences");
 		disableTrample = CONFIG.getBoolean("WorldUtils.DisableTrample");
+		deathCost = CONFIG.getDouble("WorldUtils.DeathCost");
 		giveCommand = CONFIG.getBoolean("Commands.Give");
 		homeCommand = CONFIG.getBoolean("Commands.Home");
 		maxHomes = CONFIG.getInt("Commands.HomeLimit");
@@ -148,13 +151,13 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 			.resolve("BTVInfo.txt");
 
 		if (Files.exists(oldInfoFile) && !Files.exists(newInfoFile)) {
-            try {
-                Files.move(oldInfoFile, newInfoFile);
-            } catch (IOException e) {
+			try {
+				Files.move(oldInfoFile, newInfoFile);
+			} catch (IOException e) {
 				System.out.println("Could not create migrate info file!");
 				System.out.println("Generating new from default");
 			}
-        }
+		}
 
 		initInfo();
 //		initRules();

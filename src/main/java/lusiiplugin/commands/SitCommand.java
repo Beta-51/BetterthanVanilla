@@ -10,7 +10,7 @@ import static java.lang.Math.floor;
 
 public class SitCommand extends Command {
 	public SitCommand() {
-		super("sit", "");
+		super("sit");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
@@ -23,7 +23,7 @@ public class SitCommand extends Command {
 		LocationTarget location = new LocationTarget(handler, sender);
 		Entity entity = createEntity(EntityArrow.class, location.getWorld());
 		entity.spawnInit();
-		entity.moveTo(floor(location.getX())+.5, location.getY()-0.8, floor(location.getZ())+.5, 90F, 0.0F);
+		entity.moveTo(floor(location.getX())+.5, location.getY()-0.5, floor(location.getZ())+.5, 90F, 0.0F);
 		location.getWorld().entityJoinedWorld(entity);
 		p.startRiding(entity);
 		return true;

@@ -130,7 +130,7 @@ public class EntityArrowMixin extends Entity {
 							movingobjectposition.entity.fireHurt();
 						}
 
-						this.world.playSoundAtEntity(this, "random.drr", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+						this.world.playSoundAtEntity((Entity)null, this, "random.drr", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
 						if (!(this.arrowType == 2)) {
 							this.remove();
 						}
@@ -209,7 +209,7 @@ public class EntityArrowMixin extends Entity {
 
 	@Shadow
 	protected void inGroundAction() {
-		this.world.playSoundAtEntity(this, "random.drr", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
+		this.world.playSoundAtEntity((Entity)null, this, "random.drr", 1.0F, 1.2F / (this.random.nextFloat() * 0.2F + 0.9F));
 		this.inGround = true;
 		this.arrowShake = 7;
 	}

@@ -39,7 +39,7 @@ public class TPACommand extends Command {
 			sender.sendMessage("§4You must specify a player!");
 			return true;
 		}
-		if (!ptpInfo.canTP()) {
+		if (!ptpInfo.canTP() && sender.isAdmin()) {
 			int waitTime = ptpInfo.cooldown();
 			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
 			return true;

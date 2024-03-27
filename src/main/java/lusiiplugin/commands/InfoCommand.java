@@ -23,8 +23,8 @@ public class InfoCommand extends Command {
 				return true;
 			}
 		}
-        return false;
-    }
+		return false;
+	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("/info");

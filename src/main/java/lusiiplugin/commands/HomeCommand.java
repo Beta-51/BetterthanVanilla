@@ -51,7 +51,7 @@ public class HomeCommand extends Command {
 			return true;
 		}
 
-		if (tpInfo.canTP()) {
+		if (tpInfo.canTP() && sender.isAdmin()) {
 			tpInfo.update(p);
 			HomePosition h = homePos.get();
 			LusiiPlugin.teleport(p, h);
