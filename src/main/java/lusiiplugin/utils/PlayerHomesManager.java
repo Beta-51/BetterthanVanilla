@@ -72,7 +72,7 @@ public class PlayerHomesManager {
 					if (homeName.isEmpty()) {
 						homeName = "home";
 					}
-					List<String> lines = null;
+					List<String> lines;
 					try {
 						lines = Files.readAllLines(Paths.get(homeFile.getPath()));
 					} catch (IOException e) {

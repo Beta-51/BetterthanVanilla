@@ -13,17 +13,18 @@ public class InfoCommand extends Command {
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		if (Objects.equals(args[0], "reload")) {
-			LusiiPlugin.initInfo();
-		} else {
-			for (String line : LusiiPlugin.infoText) sender.sendMessage(line);
-		}
+		for (String line : LusiiPlugin.info.get()) sender.sendMessage(line);
 		return true;
 	}
 
 	public boolean opRequired(String[] args) {
-		return false;
-	}
+		if (args.length > 0) {
+			if (Objects.equals(args[0].toLowerCase(), "reload")) {
+				return true;
+			}
+		}
+        return false;
+    }
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("/info");

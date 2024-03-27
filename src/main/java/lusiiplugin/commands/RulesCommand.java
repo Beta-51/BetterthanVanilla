@@ -13,7 +13,7 @@ import java.util.List;
 
 public class RulesCommand extends Command {
 	public RulesCommand() {
-		super("rules", "");
+		super("rules");
 	}
 	static List<String> lines;
 //

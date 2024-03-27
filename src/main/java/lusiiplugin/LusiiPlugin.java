@@ -1,9 +1,6 @@
 package lusiiplugin;
 
-import lusiiplugin.utils.HomePosition;
-import lusiiplugin.utils.PlayerHomes;
-import lusiiplugin.utils.PlayerHomesManager;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.*;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
@@ -20,10 +17,10 @@ import turniplabs.halplibe.util.TomlConfigHandler;
 import turniplabs.halplibe.util.toml.Toml;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -129,7 +126,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static String MOTD;
 	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
 	private static PlayerHomesManager homeManager;
-	public static List<String> infoText;
+	public static ConfigBuilder info;
+	public static ConfigBuilder rules;
 	public static final Set<String> vanished = new HashSet();
 	public static File vanishedFile;
 
@@ -144,7 +142,22 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		System.out.println("Better than Vanilla loading.");
 		System.out.println();
 
+		Path oldInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+			.resolve("BetterThanVanillaInfo.txt");
+		Path newInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+			.resolve("BTVInfo.txt");
+
+		if (Files.exists(oldInfoFile) && !Files.exists(newInfoFile)) {
+            try {
+                Files.move(oldInfoFile, newInfoFile);
+            } catch (IOException e) {
+				System.out.println("Could not create migrate info file!");
+				System.out.println("Generating new from default");
+			}
+        }
+
 		initInfo();
+//		initRules();
 
 		Path saveDirPath = Paths.get(SAVE_DIR);
 		if (!Files.exists(saveDirPath)) {
@@ -164,110 +177,63 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 
 	public static void initInfo() {
-		Path filePath = Paths.get(CFG_DIR).resolve("BetterThanVanillaInfo.txt");
+		info = new ConfigBuilder("BTVInfo.txt",
+			Arrays.asList(
+				"<aqua>Thanks for installing Better than Vanilla!<r>",
+				"<aqua>this is an automatically generated message<r>",
+				"<aqua>and you may customize it in the config folder!<r>",
+				"<aqua>Once you have modified this file run <lime>/info reload<r><aqua>!<r>",
+				"///",
+				"/// ---------------================= INFO SYNTAX =================--------------- ",
+				"///",
+				"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
+				"///",
+				"/// - Use html like tags for formatting",
+				"///    Example: <red><b>BOLD RED<r> normal text",
+				"/// - You can escape the '<' and '>' symbols with a '\\'",
+				"///    Example: \\<blue>",
+				"///",
+				"///  Formatting tags: ",
+				"///             +-----------------------------------------------+",
+				"///             | white   | gray    | grey   | silver | black   |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | red     | orange  | yellow | green  | blue    |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | magenta | brown   | cyan   | lime   | aqua    |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | i = italics       | purple | pink   |",
+				"///             |-------------------+--------+--------|",
+				"///             | u = underline     | b = bold        |",
+				"///             |-------------------+-----------------|",
+				"///             | r / reset = reset | s = strike      |",
+				"///             |-------------------+-----------------|",
+				"///             | o = obfuscate     |",
+				"///             +-------------------+"
+			),
+			true
+		);
+	}
 
-		// If the file does exist, make it.
-		if (!Files.exists(filePath)) {
-			try {
-				System.out.println("BetterThanVanillaInfo.txt does not exist. Creating it for you...");
-				Files.write(filePath,
-					Arrays.asList(
-						"<aqua>Thanks for installing lusii's plugin!<r>",
-						"<aqua>this is an automatically generated message<r>",
-						"<aqua>and you may customize it in the config folder!<r>",
-						"<aqua>Once you have modified this file re-run <b>/info<r><aqua>!<r>",
-						"",
-						"/// ---------------================= INFO SYNTAX =================--------------- ",
-						"///",
-						"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
-						"///",
-						"/// - Use html like tags for formatting",
-						"///    Example: <red><b>BOLD RED<r> normal text",
-						"/// - You can escape the '<' and '>' symbols with a '\\'",
-						"///    Example: \\<blue>",
-						"///",
-						"///  Formatting tags: ",
-						"///             +-----------------------------------------------+",
-						"///             | white   | gray    | grey   | silver | black   |",
-						"///             |---------+---------+--------+--------+---------|",
-						"///             | red     | orange  | yellow | green  | blue    |",
-						"///             |---------+---------+--------+--------+---------|",
-						"///             | magenta | brown   | cyan   | lime   | aqua    |",
-						"///             |---------+---------+--------+--------+---------|",
-						"///             | i = italics       | purple | pink   |",
-						"///             |-------------------+--------+--------|",
-						"///             | u = underline     | b = bold        |",
-						"///             |-------------------+-----------------|",
-						"///             | r / reset = reset | s = strike      |",
-						"///             |-------------------+-----------------|",
-						"///             | o = obfuscate     |",
-						"///             +-------------------+"
-					),
-					StandardCharsets.UTF_8
-				);
-				System.out.println();
-				System.out.println("Done! Check your config folder for BetterThanVanillaInfo.txt!");
-				System.out.println("For colour coding look at /colours!");
-				System.out.println("You can also edit what commands and features people have access to!");
-				System.out.println("Edit the betterthanvanilla.cfg file in the config folder!");
-				System.out.println("You will have to restart the server if you change this config file!");
-			} catch (IOException e) {
-				System.err.println("Error creating file: " + e.getMessage());
-				return; // Exit if file creation fails
-			}
-		}
-
-		// Pretty colors!
-		HashMap<String, String> colorMap = new HashMap<>();
-		colorMap.put("white", "0");
-		colorMap.put("orange", "1");
-		colorMap.put("magenta", "2");
-		colorMap.put("aqua", "3");
-		colorMap.put("yellow", "4");
-		colorMap.put("lime", "5");
-		colorMap.put("pink", "6");
-		colorMap.put("grey", "7");
-		colorMap.put("gray", "7");
-		colorMap.put("silver", "8");
-		colorMap.put("cyan", "9");
-		colorMap.put("purple", "a");
-		colorMap.put("blue", "b");
-		colorMap.put("brown", "c");
-		colorMap.put("green", "d");
-		colorMap.put("red", "e");
-		colorMap.put("black", "f");
-		colorMap.put("obf", "k");
-		colorMap.put("b", "l");
-		colorMap.put("s", "m");
-		colorMap.put("u", "n");
-		colorMap.put("i", "o");
-		colorMap.put("r", "r");
-		colorMap.put("reset", "r");
-
-		List<String> infoLines = new ArrayList<>();
-
-		try {
-			List<String> lines = Files.readAllLines(filePath);
-			for (String line : lines) {
-				// Skip comments
-				if (line.trim().startsWith("///")) continue;
-				// Handle escaping
-				line = line.replaceAll("\\\\<", "ESCAPED_LT").replaceAll("\\\\>", "ESCAPED_GT");
-				// Process color tags
-				for (String color : colorMap.keySet()) {
-					line = line.replaceAll("<" + color + ">", "§" + colorMap.get(color));
-				}
-				// Revert escaped characters
-				line = line.replaceAll("ESCAPED_LT", "<").replaceAll("ESCAPED_GT", ">");
-
-				infoLines.add(line);
-			}
-		} catch (IOException e) {
-			System.err.println("Error reading file: " + e.getMessage());
-		}
-
-		infoText = infoLines;
-
+	public static void initRules() {
+		rules = new ConfigBuilder("BTVRules.txt",
+			Arrays.asList(
+				"<aqua>Basic rules:<r>",
+				"<aqua>No cheating<r>",
+				"<aqua>No harassing<r>",
+				"<aqua>No minecraft youtuber shenanigans<r>",
+				"<aqua>You can edit these in the config!<r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"/// See BTVInfo.txt for formatting rules!"
+			),
+			true
+		);
 	}
 
 	public static void convertOldHomes() {
