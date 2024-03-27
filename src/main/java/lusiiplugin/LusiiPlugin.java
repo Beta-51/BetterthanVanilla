@@ -1,9 +1,6 @@
 package lusiiplugin;
 
-import lusiiplugin.utils.HomePosition;
-import lusiiplugin.utils.PlayerHomes;
-import lusiiplugin.utils.PlayerHomesManager;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.*;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
@@ -23,12 +20,13 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
     public static final String MOD_ID = "betterthanvanilla";
 	public static final String SAVE_DIR = "lusiibtv";
+	public static final String CFG_DIR = "config";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static final TomlConfigHandler CONFIG;
 	public static boolean enableSkyDimensionPortal;
@@ -128,6 +126,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static String MOTD;
 	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
 	private static PlayerHomesManager homeManager;
+	public static ConfigBuilder info;
+	public static ConfigBuilder rules;
 	public static final Set<String> vanished = new HashSet();
 	public static File vanishedFile;
 
@@ -135,24 +135,105 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public void onInitialize() {
 		if (enableSkyDimensionPortal) {
 			((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
+
 		}
+
+		System.out.println();
+		System.out.println("Better than Vanilla loading.");
+		System.out.println();
+
+		Path oldInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+			.resolve("BetterThanVanillaInfo.txt");
+		Path newInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+			.resolve("BTVInfo.txt");
+
+		if (Files.exists(oldInfoFile) && !Files.exists(newInfoFile)) {
+            try {
+                Files.move(oldInfoFile, newInfoFile);
+            } catch (IOException e) {
+				System.out.println("Could not create migrate info file!");
+				System.out.println("Generating new from default");
+			}
+        }
+
+		initInfo();
+//		initRules();
 
 		Path saveDirPath = Paths.get(SAVE_DIR);
 		if (!Files.exists(saveDirPath)) {
 			try {
 				Files.createDirectories(saveDirPath);
-				System.out.println("created" + saveDirPath);
+				System.out.println("Created /" + saveDirPath +"/ for BTV data files");
 			} catch (IOException e) {
-				LOGGER.error("Could not create save directory: " + SAVE_DIR, e);
 				System.out.println("Could not create save directory: " + SAVE_DIR);
-
 				return; // Exit if the directory cannot be created
 			}
 		}
 
 		homeManager = new PlayerHomesManager();
+		System.out.println();
+		System.out.println("Better than Vanilla initialized.");
+		System.out.println();
+	}
 
-		LOGGER.info("Better than Vanilla initialized.");
+	public static void initInfo() {
+		info = new ConfigBuilder("BTVInfo.txt",
+			Arrays.asList(
+				"<aqua>Thanks for installing Better than Vanilla!<r>",
+				"<aqua>this is an automatically generated message<r>",
+				"<aqua>and you may customize it in the config folder!<r>",
+				"<aqua>Once you have modified this file run <lime>/info reload<r><aqua>!<r>",
+				"///",
+				"/// ---------------================= INFO SYNTAX =================--------------- ",
+				"///",
+				"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
+				"///",
+				"/// - Use html like tags for formatting",
+				"///    Example: <red><b>BOLD RED<r> normal text",
+				"/// - You can escape the '<' and '>' symbols with a '\\'",
+				"///    Example: \\<blue>",
+				"///",
+				"///  Formatting tags: ",
+				"///             +-----------------------------------------------+",
+				"///             | white   | gray    | grey   | silver | black   |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | red     | orange  | yellow | green  | blue    |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | magenta | brown   | cyan   | lime   | aqua    |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | i = italics       | purple | pink   |",
+				"///             |-------------------+--------+--------|",
+				"///             | u = underline     | b = bold        |",
+				"///             |-------------------+-----------------|",
+				"///             | r / reset = reset | s = strike      |",
+				"///             |-------------------+-----------------|",
+				"///             | o = obfuscate     |",
+				"///             +-------------------+"
+			),
+			true
+		);
+	}
+
+	public static void initRules() {
+		rules = new ConfigBuilder("BTVRules.txt",
+			Arrays.asList(
+				"<aqua>Basic rules:<r>",
+				"<aqua>No cheating<r>",
+				"<aqua>No harassing<r>",
+				"<aqua>No minecraft youtuber shenanigans<r>",
+				"<aqua>You can edit these in the config!<r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"<aqua><r>",
+				"/// See BTVInfo.txt for formatting rules!"
+			),
+			true
+		);
 	}
 
 	public static void convertOldHomes() {
@@ -236,32 +317,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 
 	@Override
 	public void beforeGameStart() {
-
 	}
-	//Code taken from playerlogger plugin. I needed it. Seriously. I would've thrown something if i didn't have something to go off of.
-	public static void homesUtil(String fileContents, String fileName) {
-		try {
-			// Specify the subdirectory and file name
-			String subdirectory = "player-homes";
-			String filePath = subdirectory + File.separator + fileName + ".txt";
 
-			// Create the subdirectory if it doesn't exist
-			File directory = new File(subdirectory);
-			if (!directory.exists()) {
-				directory.mkdirs(); // Create the directory and its parent directories if necessary
-			}
-
-			// Use FileWriter constructor with "true" to enable append mode
-			FileWriter myWriter = new FileWriter(filePath, true);
-
-			// changed sysout formatting -MilkFrog
-			myWriter.write(fileContents + "\n");
-			myWriter.close();
-		} catch (IOException e) {
-			System.out.println("A big bad error occurred.");
-			e.printStackTrace();
-		}
-	}
 	@Override
 	public void afterGameStart() {
 		MinecraftServer mcs = MinecraftServer.getInstance();
