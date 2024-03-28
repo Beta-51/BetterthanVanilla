@@ -37,7 +37,7 @@ public class PlayerHomesManager {
 	public void save() {
 		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(filePath))) {
 			oos.writeObject(allPlayerHomes);
-			System.out.println("HashMap saved to disk.");
+			System.out.println("Player home data saved to disk.");
 		} catch (IOException ignored) {
 			LusiiPlugin.LOGGER.warn("Chunk claims failed to save to disk! This is a major issue if you do not want griefing!");
 		}

@@ -18,13 +18,8 @@ public class InfoCommand extends Command {
 	}
 
 	public boolean opRequired(String[] args) {
-		if (args.length > 0) {
-			if (Objects.equals(args[0].toLowerCase(), "reload")) {
-				return true;
-			}
-		}
-		return false;
-	}
+        return false;
+    }
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("/info");
