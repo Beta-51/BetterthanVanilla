@@ -54,7 +54,7 @@ public class ConfigBuilder {
 		createConfig();
 	}
 
-	public void createConfig() {
+	private void createConfig() {
 		if (!Files.exists(filePath)) {
 			try {
 				System.out.println(fileName + " does not exist. Creating it for you...");

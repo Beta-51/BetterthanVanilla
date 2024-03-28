@@ -5,6 +5,7 @@ import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
+import net.minecraft.core.net.packet.Packet9Respawn;
 import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.entity.player.EntityPlayerMP;
@@ -20,7 +21,6 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeEntrypoint {
@@ -262,28 +262,38 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 
 	public static void teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
-		NetServerHandler hs = ((EntityPlayerMP) startPlayer).playerNetServerHandler;
-		NetServerHandler he = ((EntityPlayerMP) endPlayer).playerNetServerHandler;
+		NetServerHandler startHandle = ((EntityPlayerMP) startPlayer).playerNetServerHandler;
+		NetServerHandler endHandle = ((EntityPlayerMP) endPlayer).playerNetServerHandler;
 		double x = endPlayer.x;
 		double y = endPlayer.y;
 		double z = endPlayer.z;
 		float xr = endPlayer.xRot;
 		float yr = endPlayer.yRot;
-		hs.teleport(x, y, z);
+		if (startPlayer.dimension != endPlayer.dimension) {
+			EntityPlayerMP mp = (EntityPlayerMP) startPlayer;
+			MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, endPlayer.dimension);
+			mp.playerNetServerHandler.sendPacket(new Packet9Respawn((byte) endPlayer.dimension, (byte) 0));
+		}
+		startHandle.teleport(x, y, z);
 		startPlayer.moveTo(x, y, z, yr, xr);
 		// Show the teleported player to the accepting player instantly
 		// instead of waiting on the server to send it
-		he.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
+		endHandle.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
 	}
 
 	public static void teleport(EntityPlayer p, Vec3d pos) {
 		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
-		s.teleport(pos.xCoord, pos.yCoord, pos.zCoord);
+		s.teleportAndRotate(pos.xCoord, pos.yCoord, pos.zCoord, p.yRot, p.xRot);
 		p.moveTo( pos.xCoord, pos.yCoord, pos.zCoord, p.yRot, p.xRot);
 	}
 
 	public static void teleport(EntityPlayer p, HomePosition h) {
-		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
+		EntityPlayerMP mp = (EntityPlayerMP) p;
+		NetServerHandler s = mp.playerNetServerHandler;
+		if (p.dimension != h.dim) {
+            MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, h.dim);
+			mp.playerNetServerHandler.sendPacket(new Packet9Respawn((byte) h.dim, (byte) 0));
+		}
 		s.teleport(h.x, h.y, h.z);
 		p.moveTo(h.x, h.y, h.z, p.yRot, p.xRot);
 	}
