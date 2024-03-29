@@ -31,7 +31,7 @@ public class RTPCommand extends Command {
 			sender.sendMessage("§4You may only use this in the overworld!");
 			return true;
 		}
-		if (!tpInfo.canTP() && sender.isAdmin()) {
+		if (!tpInfo.canTP() && !sender.isAdmin()) {
 			int waitTime = tpInfo.cooldown();
 			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
 			return true;

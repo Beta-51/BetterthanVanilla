@@ -20,7 +20,6 @@ public final class CommandsMixin {
 	private static void initCommands(CallbackInfo ci) {
 			commands.add(new MOTDCommand());
 			commands.add(new InfoCommand());
-			commands.add(new SitCommand());
 			commands.add(new ColoursCommand());
 			commands.add(new SethomeCommand());
 			commands.add(new DelhomeCommand());

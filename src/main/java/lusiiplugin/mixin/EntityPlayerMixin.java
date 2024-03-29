@@ -4,10 +4,13 @@ import com.mojang.nbt.CompoundTag;
 import com.mojang.nbt.ListTag;
 import net.minecraft.core.achievement.stat.StatList;
 import net.minecraft.core.block.entity.TileEntity;
+import net.minecraft.core.data.gamerule.GameRules;
 import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.EntityBobber;
 import net.minecraft.core.entity.EntityLiving;
 import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.item.Item;
+import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.player.gamemode.Gamemode;
 import net.minecraft.core.player.inventory.Container;
 import net.minecraft.core.player.inventory.ContainerPlayer;
@@ -33,9 +36,6 @@ public class EntityPlayerMixin extends EntityLiving {
 	public EntityPlayerMixin(World world) {
 		super(world);
 	}
-
-
-
 	@Shadow
 	protected void init() {
 

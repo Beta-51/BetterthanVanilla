@@ -30,7 +30,7 @@ public class BackCommand extends Command {
 		}
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
-		if (tpInfo.canTP()) {
+		if (tpInfo.canTP() || sender.isAdmin()) {
 			if (tpInfo.atNewPos(p)) {
 				Vec3d lastPos = tpInfo.getLastPos();
 
@@ -42,7 +42,7 @@ public class BackCommand extends Command {
 				sender.sendMessage("§4You have not moved!");
 			}
 
-        } else {
+        } else if (!sender.isAdmin()) {
 			int waitTime = tpInfo.cooldown();
 			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
         }
