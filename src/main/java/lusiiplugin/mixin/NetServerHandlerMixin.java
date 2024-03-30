@@ -1,7 +1,7 @@
 package lusiiplugin.mixin;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import lusiiplugin.LusiiPlugin;
-import net.minecraft.core.HitResult;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.entity.TileEntityFlag;
@@ -22,7 +22,6 @@ import net.minecraft.core.util.helper.ChatAllowedCharacters;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.MathHelper;
 import net.minecraft.core.util.phys.AABB;
-import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.core.world.chunk.ChunkCoordinates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.entity.player.EntityPlayerMP;
@@ -33,8 +32,10 @@ import org.apache.log4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.io.IOException;
 import java.security.Key;
 import java.util.*;
 
@@ -64,56 +65,29 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 
 
-	@Overwrite
+	@Shadow
 	public void sendPacket(Packet packet) {
-		this.netManager.addToSendQueue(packet);
-		this.field_22004_g = this.field_15_f;
 	}
 	@Shadow
 	public void kickPlayer(String s) {
 	}
 
-
-
-	@Overwrite
-	public void handleUseEntity(Packet7UseEntity packet) {
-		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
-		Entity targetEntity = worldserver.func_6158_a(packet.targetEntity);
-		if (targetEntity != null && this.playerEntity.distanceToSqr(targetEntity) < 36.0) {
-			boolean canAttack = this.playerEntity.canEntityBeSeen(targetEntity);
-			if (!canAttack) {
-				float f1 = MathHelper.cos(-this.playerEntity.yRot * 0.01745329F - 3.141593F);
-				float f2 = MathHelper.sin(-this.playerEntity.yRot * 0.01745329F - 3.141593F);
-				float f3 = -MathHelper.cos(-this.playerEntity.xRot * 0.01745329F);
-				float f4 = MathHelper.sin(-this.playerEntity.xRot * 0.01745329F);
-				Vec3d viewVector = Vec3d.createVector((double)(f2 * f3), (double)f4, (double)(f1 * f3));
-				viewVector.xCoord *= 8.0;
-				viewVector.yCoord *= 8.0;
-				viewVector.zCoord *= 8.0;
-				viewVector.xCoord += this.playerEntity.x;
-				viewVector.yCoord += this.playerEntity.y;
-				viewVector.zCoord += this.playerEntity.z;
-				Vec3d playerViewPos = Vec3d.createVector(this.playerEntity.x, this.playerEntity.y + (double)this.playerEntity.getHeadHeight(), this.playerEntity.z);
-				HitResult movingObjectPosition = targetEntity.bb.func_1169_a(playerViewPos, viewVector);
-				canAttack = movingObjectPosition != null && worldserver.checkBlockCollisionBetweenPoints(playerViewPos, movingObjectPosition.location) == null;
-			}
-
-			if (canAttack) {
-				if (packet.isLeftClick == 0) {
-					if (targetEntity instanceof EntityPlayer && this.playerEntity.inventory.getCurrentItem() == null && targetEntity.vehicle != this.playerEntity && LusiiPlugin.headSit) {
-						this.playerEntity.startRiding(targetEntity);
-						this.playerEntity.collision = false;
-						this.playerEntity.noPhysics = true;
-					} else {
-						this.playerEntity.useCurrentItemOnEntity(targetEntity);
-					}
-				} else if (packet.isLeftClick == 1) {
-					this.playerEntity.attackTargetEntityWithCurrentItem(targetEntity);
-				}
-			}
+	@Inject(
+		method = "handleUseEntity",
+		at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/server/entity/player/EntityPlayerMP;useCurrentItemOnEntity(Lnet/minecraft/core/entity/Entity;)V",
+			shift = At.Shift.BEFORE, by = 1
+		)
+	)
+	public void ridePlayer(Packet7UseEntity packet, CallbackInfo ci, @Local(ordinal = 0) Entity targetEntity) {
+		if (targetEntity instanceof EntityPlayer && this.playerEntity.getHeldItem() == null && targetEntity.vehicle != this.playerEntity && LusiiPlugin.headSit) {
+			this.playerEntity.startRiding(targetEntity);
+			this.playerEntity.collision = false;
+			this.playerEntity.noPhysics = true;
 		}
-
 	}
+
+
 
 
 
@@ -596,8 +570,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		if (this.playerEntity.getHealth() <= 0) {
 			int score = this.playerEntity.score;
 			this.playerEntity = this.mcServer.playerList.recreatePlayerEntity(this.playerEntity, 0);
-			double scoreD = score;
-			this.playerEntity.score = (int) (scoreD * LusiiPlugin.deathCost);
+            this.playerEntity.score = (int) ((double) score * LusiiPlugin.deathCost);
 		}
 	}
 

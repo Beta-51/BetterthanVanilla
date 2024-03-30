@@ -2,6 +2,7 @@ package lusiiplugin;
 
 import lusiiplugin.utils.*;
 import net.fabricmc.api.ModInitializer;
+import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
@@ -137,7 +138,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	@Override
 	public void onInitialize() {
 		if (enableSkyDimensionPortal) {
-			((BlockPortal) BlockPortal.portalParadise).portalTriggerId = BlockPortal.fluidWaterFlowing.id;
+			((BlockPortal) Block.portalParadise).portalTriggerId = Block.fluidWaterFlowing.id;
 
 		}
 
@@ -253,6 +254,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 
 	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
 		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
+	}
+
+	public static void updateTPInfo(EntityPlayer p) {
+		getTPInfo(p).update(p);
 	}
 
 	public static void teleport(EntityPlayer p, double x, double y, double z) {

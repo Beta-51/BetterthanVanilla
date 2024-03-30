@@ -2,45 +2,44 @@ package lusiiplugin.mixin;
 
 import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.InventoryAction;
-import net.minecraft.core.block.Block;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.player.inventory.*;
 import net.minecraft.core.player.inventory.slot.Slot;
-import net.minecraft.core.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Collections;
 import java.util.List;
 
-@Mixin(value = ContainerWorkbench.class,remap = false)
-public class ContainerWorkbenchMixin extends Container {@Shadow
-	public InventoryCrafting craftMatrix = new InventoryCrafting(this, 3, 3);@Shadow
-	public IInventory craftResult = new InventoryCraftResult();@Shadow
-	private World field_20133_c;@Shadow
-	private int field_20132_h;@Shadow
-	private int field_20131_i;@Shadow
-	private int field_20130_j;
+@Mixin(value = ContainerWorkbench.class, remap = false)
+public class ContainerWorkbenchMixin extends Container {
+
+	@Inject(
+		method = "isUsableByPlayer(Lnet/minecraft/core/entity/player/EntityPlayer;) Z",
+		at = @At("TAIL"),
+		cancellable = true
+	)
+	public void craftCommand(EntityPlayer entityplayer, CallbackInfoReturnable<Boolean> cir) {
+		if (LusiiPlugin.craftCommand) {
+			cir.setReturnValue(true);
+		}
+	}
 
 	@Shadow
 	public List<Integer> getMoveSlots(InventoryAction inventoryAction, Slot slot, int i, EntityPlayer entityPlayer) {
-		return null;
-	}
+        return Collections.emptyList();
+    }
 
 	@Shadow
 	public List<Integer> getTargetSlots(InventoryAction inventoryAction, Slot slot, int i, EntityPlayer entityPlayer) {
-		return null;
+		return Collections.emptyList();
 	}
 
-	@Overwrite
-	public boolean isUsableByPlayer(EntityPlayer entityplayer) {
-		if (LusiiPlugin.craftCommand) {
-			return true;
-		}
-		if (this.field_20133_c.getBlockId(this.field_20132_h, this.field_20131_i, this.field_20130_j) != Block.workbench.id) {
-			return false;
-		} else {
-			return entityplayer.distanceToSqr((double)this.field_20132_h + 0.5, (double)this.field_20131_i + 0.5, (double)this.field_20130_j + 0.5) <= 64.0;
-		}
+	@Shadow
+	public boolean isUsableByPlayer(EntityPlayer entityPlayer) {
+		return false;
 	}
 }

@@ -3,18 +3,21 @@ package lusiiplugin.commands;
 import lusiiplugin.LusiiPlugin;
 import lusiiplugin.utils.PlayerTPInfo;
 import net.minecraft.core.entity.player.EntityPlayer;
+import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 import net.minecraft.core.net.packet.*;
+import net.minecraft.core.player.inventory.Container;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 
+import java.util.Arrays;
 import java.util.Random;
 
 public class RTPCommand extends Command {
 	public Random random;
 	public RTPCommand() {
-		super("rtp", "");
+		super("rtp");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
@@ -36,16 +39,18 @@ public class RTPCommand extends Command {
 			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
 			return true;
 		}
-		int randX = (int) Math.floor(Math.random() *(25000 - -25000 + 1) + -25000);
-		int randZ = (int) Math.floor(Math.random() *(25000 - -25000 + 1) + -25000);
+		Random r = new Random();
+		int randX = r.nextInt() * (25000 + 25000 + 1) - 25000;
+		int randZ = r.nextInt() * (25000 + 25000 + 1) - 25000;
 
 		tpInfo.update(p);
 
-		((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
+		LusiiPlugin.teleport(p, randX, 256, randZ);
+
+		EntityPlayerMP mp = (EntityPlayerMP) p;
+		mp.playerNetServerHandler.sendPacket(
 			new Packet9Respawn((byte) p.dimension, (byte) 0)
 		);
-
-		LusiiPlugin.teleport(p, randX, 256, randZ);
 
 		sender.sendMessage("Teleported!");
 
