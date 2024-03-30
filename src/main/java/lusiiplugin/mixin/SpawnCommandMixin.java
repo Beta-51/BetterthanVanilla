@@ -9,35 +9,33 @@ import net.minecraft.core.world.chunk.ChunkCoordinates;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = SpawnCommand.class, remap = false)
 public class SpawnCommandMixin extends Command {
 	public SpawnCommandMixin() {
-		super("spawn", new String[0]);
+		super("spawn");
 	}
 
+	@Inject(
+		method = "execute",
+		at = @At(value = "INVOKE",
+			target = "Lnet/minecraft/core/net/command/CommandSender;sendMessage(Ljava/lang/String;)V",
+			shift = At.Shift.AFTER, by = 1
+		)
+	)
+	public void trackTP(CommandHandler handler, CommandSender sender, String[] args, CallbackInfoReturnable<Boolean> cir) {
+		LusiiPlugin.updateTPInfo(sender.getPlayer());
+	}
+
+	@Shadow
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		if (sender instanceof PlayerCommandSender) {
-			EntityPlayer player = sender.getPlayer();
-			World world = handler.getWorld(player);
-			ChunkCoordinates pos = world.getSpawnPoint();
-			sender.sendMessage("Teleporting to spawn...");
-			LusiiPlugin.getTPInfo(player).update(player);
-			if (player instanceof EntityPlayerMP) {
-				EntityPlayerMP playerMP = (EntityPlayerMP)player;
-				if (playerMP.dimension != 0) {
-					playerMP.mcServer.playerList.sendPlayerToOtherDimension(playerMP, 0);
-				}
-
-				playerMP.playerNetServerHandler.teleportAndRotate((double)pos.x + 0.5, (double)pos.y + 0.5, (double)pos.z + 0.5, 0.0F, 0.0F);
-			}
-
-			player.absMoveTo((double)pos.x + 0.5, (double)pos.y + 0.5, (double)pos.z + 0.5, 0.0F, 0.0F);
-			return true;
-		} else {
-			throw new CommandError("Must be used by a player!");
-		}
+		return true;
 	}
+
 	@Overwrite
 	public boolean opRequired(String[] args) {
 		return !LusiiPlugin.spawnCommand;

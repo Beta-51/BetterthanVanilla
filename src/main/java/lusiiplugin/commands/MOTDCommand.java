@@ -6,7 +6,7 @@ import net.minecraft.core.net.command.CommandSender;
 
 public class MOTDCommand extends Command {
 	public MOTDCommand() {
-		super("motd", "");
+		super("motd");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
