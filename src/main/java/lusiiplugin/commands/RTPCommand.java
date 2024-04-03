@@ -23,6 +23,11 @@ public class RTPCommand extends Command {
 		EntityPlayer p = sender.getPlayer();
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
+		if (p.isPassenger()) {
+			sender.sendMessage("§4You may not use this command as a passenger!");
+			return true;
+		}
+
 		if (p.score < LusiiPlugin.RTPCost) {
 			sender.sendMessage("§4You do not have enough points to use this command! You need §1" + (LusiiPlugin.RTPCost - p.score) + "§4 more points!");
 			return true;

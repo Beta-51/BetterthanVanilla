@@ -68,6 +68,11 @@ public class TPConfirmCommand extends Command {
 
 		LusiiPlugin.teleport(startPlayer, endPlayer);
 
+		if (startPlayer.isPassenger() || endPlayer.isPassenger()) {
+			sender.sendMessage("§4You may not use this command as a passenger!");
+			return true;
+		}
+
 		startPlayer.score -= LusiiPlugin.TPACost;
 
 		handler.sendMessageToPlayer(startPlayer, "§1Teleported to " + endPlayer.getDisplayName());

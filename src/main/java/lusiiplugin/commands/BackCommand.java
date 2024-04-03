@@ -24,7 +24,10 @@ public class BackCommand extends Command {
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		if (sender.isConsole()) return true;
 
-		EntityPlayer p = sender.getPlayer();
+		EntityPlayer p = sender.getPlayer();		if (p.isPassenger()) {
+			sender.sendMessage("§4You may not use this command as a passenger!");
+			return true;
+		}
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
 		if (tpInfo.canTP() || sender.isAdmin()) {

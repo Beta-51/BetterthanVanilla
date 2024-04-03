@@ -28,6 +28,7 @@ public class SpawnCommandMixin extends Command {
 		)
 	)
 	public void trackTP(CommandHandler handler, CommandSender sender, String[] args, CallbackInfoReturnable<Boolean> cir) {
+
 		LusiiPlugin.updateTPInfo(sender.getPlayer());
 	}
 

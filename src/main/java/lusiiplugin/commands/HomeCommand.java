@@ -25,7 +25,10 @@ public class HomeCommand extends Command {
 		EntityPlayer p = sender.getPlayer();
 		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
-
+		if (p.isPassenger()) {
+			sender.sendMessage("§4You may not use this command as a passenger!");
+			return true;
+		}
 		String homeName;
 		if (args.length > 0) {
 			homeName = String.join(" ", args);
