@@ -22,6 +22,7 @@ public class InfoCommand extends Command {
     }
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/info");
+		sender.sendMessage("§3/info");
+		sender.sendMessage("§5Display useful information");
 	}
 }

@@ -22,7 +22,6 @@ public class RulesCommand extends Command {
 			return false;
 		}
 
-
 		String subdirectory = "config";
 		String filePath = subdirectory + File.separator + "BtVRules" + ".txt";
 		// Create the subdirectory if it doesn't exist
@@ -91,7 +90,8 @@ public class RulesCommand extends Command {
 	}
 //
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/rules [page]");
+		sender.sendMessage("§3/rules §4[page]");
+		sender.sendMessage("§5Display the server rules");
 	}
 
 	public int parseInt(String str) {

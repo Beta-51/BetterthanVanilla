@@ -79,6 +79,7 @@ public class HomeCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/home [home]");
+		sender.sendMessage("§3/home §4[home]");
+		sender.sendMessage("§5Teleport to one of your homes");
 	}
 }

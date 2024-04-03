@@ -24,7 +24,8 @@ public class OPChatCommand extends Command {
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		if (sender.isAdmin() || sender.isConsole()) {
-			sender.sendMessage("/motd <msg>");
+			sender.sendMessage("§3/opchat §4<message>");
+			sender.sendMessage("§5Broadcast a message to all players");
 		}
 	}
 }

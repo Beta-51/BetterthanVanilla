@@ -48,6 +48,6 @@ public class DelhomeCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/delhome");
-	}
+		sender.sendMessage("§3/delhome §4<home>");
+		sender.sendMessage("§5Delete one of your home");	}
 }

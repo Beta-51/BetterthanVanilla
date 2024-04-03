@@ -17,6 +17,8 @@ public class TPRequestsCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
+		sender.sendMessage("§3/tpreq");
+		sender.sendMessage("§5View your teleport requests");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {

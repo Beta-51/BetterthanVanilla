@@ -31,6 +31,9 @@ public class InvseeCommand extends Command {
 
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/invsee <username>");
+		if (sender.isConsole() || sender.isAdmin()) {
+			sender.sendMessage("§3/invsee §4<username>");
+			sender.sendMessage("§5View the inventory of another player");
+		}
 	}
 }

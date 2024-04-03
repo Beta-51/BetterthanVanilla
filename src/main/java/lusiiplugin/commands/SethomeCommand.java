@@ -52,6 +52,9 @@ public class SethomeCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/sethome");
+		sender.sendMessage("§3/sethome §4[home]");
+		sender.sendMessage("§5Set a new home at your position.");
+		int homeCount = LusiiPlugin.getPlayerHomes(sender.getPlayer()).getAmount();
+		sender.sendMessage("§5Current homes: §4" + homeCount + "§1/" + LusiiPlugin.maxHomes);
 	}
 }

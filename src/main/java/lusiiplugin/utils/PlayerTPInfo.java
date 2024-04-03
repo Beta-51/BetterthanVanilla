@@ -7,17 +7,18 @@ import net.minecraft.core.util.phys.Vec3d;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 public class PlayerTPInfo {
 	private Instant lastTPtime;
-	private Vec3d lastPos;
+	private HomePosition lastPos;
 	private ArrayList<String> requests;
 
 	public PlayerTPInfo(EntityPlayer p) {
 		lastTPtime = Instant.now().minus(Duration.ofSeconds(LusiiPlugin.TPTimeout));
 		requests = new ArrayList<>();
-		lastPos = Vec3d.createVector(p.x, p.y, p.z);
+		lastPos = new HomePosition(p.x, p.y, p.z, p.dimension);
 	}
 
 	// Returns 0 if tp is available
@@ -36,17 +37,17 @@ public class PlayerTPInfo {
 		return cooldown() == 0;
 	}
 
-	public Vec3d getLastPos() {
-		return Vec3d.createVectorHelper(lastPos.xCoord, lastPos.yCoord, lastPos.zCoord);
+	public HomePosition getLastPos() {
+		return new HomePosition(lastPos.x, lastPos.y, lastPos.z, lastPos.dim);
 	}
 
 	public void update(EntityPlayer p) {
 		lastTPtime = Instant.now();
-		lastPos = Vec3d.createVectorHelper(p.x, p.y, p.z);
+		lastPos = new HomePosition(p.x, p.y, p.z, p.dimension);
 	}
 
 	public boolean atNewPos(EntityPlayer p) {
-		Vec3d newPos = Vec3d.createVector(p.x, p.y, p.z);
+		HomePosition newPos = new HomePosition(p.x, p.y, p.z, p.dimension);
 		return !(newPos.equals(lastPos));
 	}
 
@@ -75,7 +76,7 @@ public class PlayerTPInfo {
 		}
 	}
 
-	public ArrayList<String> getAllRequests() {
+	public List<String> getAllRequests() {
 		return requests;
 	}
 

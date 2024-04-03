@@ -12,20 +12,17 @@ import net.minecraft.core.enums.EnumSignPicture;
 import net.minecraft.core.item.Item;
 import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.ICommandListener;
-import net.minecraft.core.net.NetworkManager;
 import net.minecraft.core.net.command.TextFormatting;
 import net.minecraft.core.net.handler.NetHandler;
 import net.minecraft.core.net.packet.*;
 import net.minecraft.core.player.inventory.slot.Slot;
-import net.minecraft.core.util.helper.AES;
 import net.minecraft.core.util.helper.ChatAllowedCharacters;
 import net.minecraft.core.util.helper.Direction;
 import net.minecraft.core.util.helper.MathHelper;
-import net.minecraft.core.util.phys.AABB;
 import net.minecraft.core.world.chunk.ChunkCoordinates;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.entity.player.EntityPlayerMP;
-import net.minecraft.server.net.ChatEmotes;
+import net.minecraft.server.net.PlayerList;
 import net.minecraft.server.net.handler.NetServerHandler;
 import net.minecraft.server.world.WorldServer;
 import org.apache.log4j.Logger;
@@ -34,49 +31,47 @@ import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.security.Key;
 import java.util.*;
 
 @Mixin(value = NetServerHandler.class, remap = false)
 public class NetServerHandlerMixin extends NetHandler implements ICommandListener {
-
     @Shadow
 	public static Logger logger = Logger.getLogger("Minecraft");
-	public NetworkManager netManager;
-	public boolean connectionClosed = false;
+	@Shadow
 	private MinecraftServer mcServer;
+	@Shadow
 	private EntityPlayerMP playerEntity;
-	private int field_15_f;
-	private int field_22004_g;
-	private int playerInAirTime;
-	private boolean field_22003_h;
+	@Shadow
 	private double lastPosX;
+	@Shadow
 	private double lastPosY;
+	@Shadow
 	private double lastPosZ;
+	@Shadow
 	private boolean hasMoved = true;
-	private Map field_10_k = new HashMap();
-
 	@Shadow
-	public void log(String string) {
-	}
-
-
-
-
+	public void log(String string) {}
 	@Shadow
-	public void sendPacket(Packet packet) {
+	public void sendPacket(Packet packet) {}
+	@Shadow
+	private void handleSlashCommand(String s) {}
+	@Shadow
+	public String getUsername() {
+		return null;
 	}
 	@Shadow
-	public void kickPlayer(String s) {
+	public boolean isServerHandler() {
+		return true;
 	}
 
 	@Inject(
 		method = "handleUseEntity",
 		at = @At(value = "INVOKE",
 			target = "Lnet/minecraft/server/entity/player/EntityPlayerMP;useCurrentItemOnEntity(Lnet/minecraft/core/entity/Entity;)V",
-			shift = At.Shift.BEFORE, by = 1
+			shift = At.Shift.BEFORE
 		)
 	)
 	public void ridePlayer(Packet7UseEntity packet, CallbackInfo ci, @Local(ordinal = 0) Entity targetEntity) {
@@ -87,182 +82,83 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		}
 	}
 
-
-
-
-
-	public void handleFlying(Packet10Flying packet) {
-		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
-		this.field_22003_h = true;
-		double d1;
-		if (!this.hasMoved) {
-			d1 = packet.yPosition - this.lastPosY;
-			if (packet.xPosition == this.lastPosX && d1 * d1 < 0.01 && packet.zPosition == this.lastPosZ) {
-				this.hasMoved = true;
-			}
+	@Redirect(
+		method = "handleFlying",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/net/handler/NetServerHandler; kickPlayer(Ljava/lang/String;) V"
+		)
+	)
+	private void redirectFlyKick(NetServerHandler self, String msg) {
+		if ("You moved too quickly :( (Hacking?)".equals(msg)) {
+			self.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, this.playerEntity.yRot, this.playerEntity.xRot);
+		} else {
+			self.kickPlayer(msg);
 		}
-
-		if (this.hasMoved) {
-			double newPosX;
-			double newPosY;
-			double newPosZ;
-			double dx;
-			if (this.playerEntity.vehicle != null) {
-				float f = this.playerEntity.yRot;
-				float f1 = this.playerEntity.xRot;
-				this.playerEntity.vehicle.positionRider();
-				newPosX = this.playerEntity.x;
-				newPosY = this.playerEntity.y;
-				newPosZ = this.playerEntity.z;
-				double d8 = 0.0;
-				dx = 0.0;
-				if (packet.rotating) {
-					f = packet.yaw;
-					f1 = packet.pitch;
-				}
-
-				if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
-					d8 = packet.xPosition;
-					dx = packet.zPosition;
-				}
-
-				this.playerEntity.onGround = packet.onGround;
-				this.playerEntity.onUpdateEntity();
-				this.playerEntity.move(d8, 0.0, dx);
-				this.playerEntity.absMoveTo(newPosX, newPosY, newPosZ, f, f1);
-				this.playerEntity.xd = d8;
-				this.playerEntity.zd = dx;
-				if (this.playerEntity.vehicle != null && this.playerEntity.vehicle instanceof Entity) {
-					worldserver.func_12017_b((Entity)this.playerEntity.vehicle, true);
-				}
-
-				if (this.playerEntity.vehicle != null) {
-					this.playerEntity.vehicle.positionRider();
-				}
-
-				this.mcServer.playerList.func_613_b(this.playerEntity);
-				this.lastPosX = this.playerEntity.x;
-				this.lastPosY = this.playerEntity.y;
-				this.lastPosZ = this.playerEntity.z;
-				worldserver.updateEntity(this.playerEntity);
-				return;
-			}
-
-			if (this.playerEntity.isPlayerSleeping()) {
-				this.playerEntity.onUpdateEntity();
-				this.playerEntity.absMoveTo(this.lastPosX, this.lastPosY, this.lastPosZ, this.playerEntity.yRot, this.playerEntity.xRot);
-				worldserver.updateEntity(this.playerEntity);
-				return;
-			}
-
-			d1 = this.playerEntity.y;
-			this.lastPosX = this.playerEntity.x;
-			this.lastPosY = this.playerEntity.y;
-			this.lastPosZ = this.playerEntity.z;
-			newPosX = this.playerEntity.x;
-			newPosY = this.playerEntity.y;
-			newPosZ = this.playerEntity.z;
-			float f2 = this.playerEntity.yRot;
-			float f3 = this.playerEntity.xRot;
-			if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
-				packet.moving = false;
-			}
-
-			if (packet.moving && packet.yPosition == -999.0 && packet.stance == -999.0) {
-				packet.moving = false;
-			}
-
-			if (packet.moving) {
-				newPosX = packet.xPosition;
-				newPosY = packet.yPosition;
-				newPosZ = packet.zPosition;
-				dx = packet.stance - packet.yPosition;
-				if (!this.playerEntity.isPlayerSleeping() && (dx > 1.65 || dx < 0.1)) {
-					this.kickPlayer("Illegal stance");
-					logger.warn(this.playerEntity.username + " had an illegal stance: " + dx);
-					return;
-				}
-
-				if (Math.abs(packet.xPosition) > 3.2E7 || Math.abs(packet.zPosition) > 3.2E7) {
-					this.playerEntity.resetPos();
-					this.kickPlayer("Illegal position");
-					return;
-				}
-			}
-
-			if (packet.rotating) {
-				f2 = packet.yaw;
-				f3 = packet.pitch;
-			}
-
-			this.playerEntity.onUpdateEntity();
-			this.playerEntity.ySlideOffset = 0.0F;
-			this.playerEntity.absMoveTo(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
-			if (!this.hasMoved) {
-				return;
-			}
-
-			dx = newPosX - this.playerEntity.x;
-			double dy = newPosY - this.playerEntity.y;
-			double dz = newPosZ - this.playerEntity.z;
-			double d14 = dx * dx + dy * dy + dz * dz;
-			if (d14 > 100.0) {
-				logger.warn(this.playerEntity.username + " moved too quickly!");
-				this.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
-				//this.kickPlayer("You moved too quickly :( (Hacking?)");
-				return;
-			}
-
-			float f4 = 0.0625F;
-			boolean flag = worldserver.getCubes(this.playerEntity, this.playerEntity.bb.copy().getInsetBoundingBox((double)f4, (double)f4, (double)f4)).size() == 0;
-			this.playerEntity.move(dx, dy, dz);
-			dx = newPosX - this.playerEntity.x;
-			dy = newPosY - this.playerEntity.y;
-			if (dy > -0.5 || dy < 0.5) {
-				dy = 0.0;
-			}
-
-			dz = newPosZ - this.playerEntity.z;
-			d14 = dx * dx + dy * dy + dz * dz;
-			boolean flag1 = false;
-			if (!this.playerEntity.getGamemode().canPlayerFly() && d14 > 0.0625 && !this.playerEntity.isPlayerSleeping()) {
-				flag1 = true;
-				logger.warn(this.playerEntity.username + " moved wrongly!");
-				System.out.println("Got position " + newPosX + ", " + newPosY + ", " + newPosZ);
-				System.out.println("Expected " + this.playerEntity.x + ", " + this.playerEntity.y + ", " + this.playerEntity.z);
-			}
-
-			this.playerEntity.absMoveTo(newPosX, newPosY, newPosZ, f2, f3);
-			boolean flag2 = worldserver.getCubes(this.playerEntity, this.playerEntity.bb.copy().getInsetBoundingBox((double)f4, (double)f4, (double)f4)).size() == 0;
-			if (!this.playerEntity.getGamemode().canPlayerFly() && flag && (flag1 || !flag2) && !this.playerEntity.isPlayerSleeping()) {
-				this.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, f2, f3);
-				return;
-			}
-
-			AABB axisalignedbb = this.playerEntity.bb.copy().expand((double)f4, (double)f4, (double)f4).addCoord(0.0, -0.55, 0.0);
-			if (!this.playerEntity.getGamemode().canPlayerFly() && !this.mcServer.allowFlight && !worldserver.getIsAnySolidGround(axisalignedbb)) {
-				if (dy > -0.03125) {
-					++this.playerInAirTime;
-					if (this.playerInAirTime > 80) {
-						logger.warn(this.playerEntity.username + " was kicked for floating too long!");
-						this.kickPlayer("Flying is not enabled on this server");
-						return;
-					}
-				}
-			} else {
-				this.playerInAirTime = 0;
-			}
-
-			this.playerEntity.onGround = packet.onGround;
-			this.mcServer.playerList.func_613_b(this.playerEntity);
-			this.playerEntity.handleFalling(this.playerEntity.y - d1, packet.onGround);
-		}
-
-	}
-	@Shadow
-	private void teleportAndRotate(double lastPosX, double lastPosY, double lastPosZ, float f2, float f3) {
 	}
 
+	@Inject(
+		method = "handleEntityAction",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/entity/player/EntityPlayerMP;setSneaking(Z)V",
+			ordinal = 0,
+			shift = At.Shift.BEFORE
+		)
+	)
+	public void handlePlayerRidePlayer(Packet19EntityAction packet, CallbackInfo ci) {
+		if (this.playerEntity.vehicle instanceof EntityPlayer) {
+			this.playerEntity.noPhysics = false;
+			this.playerEntity.collision = true;
+		}
+	}
+
+	@Redirect(
+		method = "handleChat",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/net/handler/NetServerHandler; handleSlashCommand(Ljava/lang/String;) V"
+		)
+	)
+	public void allowColoredCommands(NetServerHandler self, String s) {
+		if (LusiiPlugin.colourChat) {
+			s = s.replace("$$", "§");
+		}
+		if (!this.playerEntity.isOperator() && s.contains("§k")) {
+			s = s.replace("§k", "$$k");
+			this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
+		}
+		this.handleSlashCommand(s);
+	}
+
+
+	@Redirect(method = "handleChat",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/net/PlayerList; sendEncryptedChatToAllPlayers(Ljava/lang/String;)V"
+		)
+	)
+	public void allowColoredChat(PlayerList instance, String i) {
+		String prefix = "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.WHITE;
+		String msg = i.substring(prefix.length());
+
+		if (LusiiPlugin.greenText && (msg.startsWith(">") || msg.startsWith(" >"))) {
+			msg = TextFormatting.LIME + msg;
+		}
+
+		if (LusiiPlugin.colourChat) {
+			msg = msg.replace("$$", "§");
+		}
+		if (this.playerEntity.isOperator()) {
+			prefix = TextFormatting.RED + TextFormatting.BOLD.toString() + "[OP] " + TextFormatting.RESET + prefix;
+		} else if (prefix.contains("§k") || msg.contains("§k")) {
+			msg = msg.replace("§k", "$$k");
+			prefix = prefix.replace("§k", "$$k");
+			instance.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
+		}
+
+		instance.sendEncryptedChatToAllPlayers(prefix + msg);
+	}
 
 	@Overwrite
 	public void handleUpdateSign(Packet130UpdateSign packet) {
@@ -335,92 +231,13 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 				tileEntity.setColor(TextFormatting.FORMATTINGS[packet.color]);
 				tileEntity.setPicture(EnumSignPicture.values()[packet.picture]);
-				tileEntity.setIsEditable(false);
+				tileEntity.setIsEditable(true);
 				tileEntity.onInventoryChanged();
 				worldserver.markBlockNeedsUpdate(i, y, l);
 			}
 		}
 
 	}
-
-	@Overwrite
-	public void handleEntityAction(Packet19EntityAction packet) {
-		if (packet.state == 1) {
-			if (this.playerEntity.vehicle instanceof EntityPlayer) {
-				this.playerEntity.noPhysics = false;
-				this.playerEntity.collision = true;
-			}
-			this.playerEntity.setSneaking(true);
-		} else if (packet.state == 2) {
-			this.playerEntity.setSneaking(false);
-		} else if (packet.state == 3) {
-			this.playerEntity.wakeUpPlayer(false, true);
-			this.hasMoved = false;
-		}
-
-	}
-
-
-
-	@Overwrite
-	public void handleChat(Packet3Chat packet) {
-		String s;
-		if (packet.encrypted) {
-			try {
-				s = AES.decrypt(packet.message, (Key)AES.keyChain.get(this.playerEntity.username));
-			} catch (Exception var5) {
-				throw new RuntimeException(var5);
-			}
-		} else {
-			s = packet.message;
-		}
-		if (s.length() > 256) {
-			this.kickPlayer("Chat message too long");
-		} else {
-			s = s.trim();
-			s = s.replace('§', '$');
-			for(int i = 0; i < s.length(); ++i) {
-				char c = s.charAt(i);
-				if (ChatAllowedCharacters.ALLOWED_CHARACTERS.indexOf(c) < 0) {
-					this.sendPacket(new Packet3Chat(String.valueOf(TextFormatting.GRAY) + TextFormatting.ITALIC + "[SERVER] Illegal characters in chat message."));
-					return;
-				}
-			}
-			if (s.startsWith("/")) {
-				if (LusiiPlugin.colourChat) {
-					s = s.replace("$$", "§");
-				}
-				if (!this.playerEntity.isOperator() && s.contains("§k")) {s = s.replace("§k", "$$k");
-					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
-				}
-				this.handleSlashCommand(s);
-			} else {
-				s = ChatEmotes.process(s);
-				if (s.startsWith(">") && LusiiPlugin.greenText) {
-					if (this.playerEntity.isOperator()) {
-						s = TextFormatting.RED + TextFormatting.BOLD.toString() + "[OP] " + TextFormatting.RESET + "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.LIME + s;
-					} else {
-						s = "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.LIME + s;
-					}
-				} else if (this.playerEntity.isOperator()) {
-					s = TextFormatting.RED + TextFormatting.BOLD.toString() + "[OP] " + TextFormatting.RESET + "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + s;
-				} else {
-					s = "<" + this.playerEntity.getDisplayName() + TextFormatting.RESET + "> " + TextFormatting.WHITE + s;
-				}
-				if (LusiiPlugin.colourChat) {
-					s = s.replace("$$", "§");
-				}
-				if (!this.playerEntity.isOperator() && s.contains("§k")) {s = s.replace("§k", "$$k");
-					this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
-				}
-
-				System.out.println(s);
-				logger.info(s);
-				this.mcServer.playerList.sendEncryptedChatToAllPlayers(s);
-			}
-		}
-	}
-
 
 
 
@@ -499,15 +316,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		}
 
 
-		//if (itemstack != null) {
-		//	if (itemstack == Item.dye.getDefaultStack()) {
-		//		if (itemstack.getMetadata() > 15 || itemstack.getMetadata() < 0) {
-		//			this.playerEntity.inventory.mainInventory[this.playerEntity.inventory.currentItem] = null;
-		//			this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username,"§eIllegal item!");
-		//			return;
-		//		}
-		//	}
-		//}
 		boolean flag = worldserver.field_819_z = worldserver.dimension.id != 0 || this.mcServer.playerList.isOp(this.playerEntity.username);
 		if (packet.direction == Direction.NONE) {
 			if (itemstack == null) {
@@ -585,7 +393,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
             return;
         }
 
-
+		// Copied
         WorldServer world = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
         if (packet.status == 4) {
             this.playerEntity.dropCurrentItem(false);
@@ -611,14 +419,10 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
                     if (packet.status == 0) {
                         if (!((world.getBlock(x, y, z) == Block.signPostPlanksOak || world.getBlock(x, y, z) == Block.signWallPlanksOak) && this.playerEntity.isSneaking())) {
                             this.playerEntity.playerController.startMining(x, y, z, packet.side);
-                        } else {
-                            //this.mcServer.configManager.sendChatMessageToPlayer(this.playerEntity.username,"Replace a sign to rewrite some lines, or don't.");
                         }
                     } else if (packet.status == 1) {
                         if (!((world.getBlock(x, y, z) == Block.signPostPlanksOak || world.getBlock(x, y, z) == Block.signWallPlanksOak) && this.playerEntity.isSneaking())) {
                             this.playerEntity.playerController.hitBlock(x, y, z, packet.side);
-                        } else {
-                            //this.mcServer.configManager.sendChatMessageToPlayer(this.playerEntity.username,"Replace a sign to rewrite the sign, or don't.");
                         }
                     } else if (packet.status == 2 && !this.playerEntity.playerController.destroyBlock(x, y, z))
 						if (world.getBlock(x, y, z) == Block.chestLegacy || world.getBlock(x, y, z) == Block.chestPlanksOakPainted || world.getBlock(x, y, z) == Block.chestPlanksOak || world.getBlock(x, y, z) == Block.chestLegacyPainted) {
@@ -636,20 +440,4 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
                 }
             }
         }
-
-
-
-
-
-	@Shadow
-	private void handleSlashCommand(String s) {}
-
-	@Shadow
-	public String getUsername() {
-		return null;
-	}
-
-	public boolean isServerHandler() {
-		return true;
-	}
 }

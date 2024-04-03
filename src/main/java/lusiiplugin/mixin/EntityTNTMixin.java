@@ -24,8 +24,6 @@ public class EntityTNTMixin extends Entity {
 			if (this.world.dimension.id == 2 && LusiiPlugin.DisableTNTSky <= this.y) {this.remove();}
 	}
 
-
-
 	@Shadow
 	protected void init() {
 

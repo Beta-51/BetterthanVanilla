@@ -46,6 +46,7 @@ public class PayCommand extends Command {
 
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/pay <username> <amount>");
+		sender.sendMessage("§3/pay §4<username> <amount>");
+		sender.sendMessage("§5Pay another user with points");
 	}
 }
