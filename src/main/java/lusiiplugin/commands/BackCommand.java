@@ -1,6 +1,7 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.HomePosition;
 import lusiiplugin.utils.PlayerTPInfo;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
@@ -16,23 +17,19 @@ public class BackCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/back");
+		sender.sendMessage("§3/back");
+		sender.sendMessage("§5Teleport to where you last teleported from.");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer p = sender.getPlayer();
-
-		if (p.dimension != 0) {
-			sender.sendMessage("§4You may only use this in the overworld!");
-			return true;
-		}
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
 		if (tpInfo.canTP() || sender.isAdmin()) {
 			if (tpInfo.atNewPos(p)) {
-				Vec3d lastPos = tpInfo.getLastPos();
+				HomePosition lastPos = tpInfo.getLastPos();
 
                 tpInfo.update(p);
 				LusiiPlugin.teleport(p, lastPos);

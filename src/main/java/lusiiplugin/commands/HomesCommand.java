@@ -40,6 +40,7 @@ public class HomesCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("/homes");
+		sender.sendMessage("§3/homes");
+		sender.sendMessage("§5List your homes");
 	}
 }

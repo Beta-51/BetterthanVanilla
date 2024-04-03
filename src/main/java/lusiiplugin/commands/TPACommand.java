@@ -19,6 +19,8 @@ public class TPACommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
+		sender.sendMessage("§3/tpa §4<username>");
+		sender.sendMessage("§5Request to teleport to a player");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {

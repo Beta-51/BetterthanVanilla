@@ -32,8 +32,11 @@ public class MOTDCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
+		sender.sendMessage("§3/motd");
+		sender.sendMessage("§5Show the server MOTD");
 		if (sender.isAdmin() || sender.isConsole()) {
-			sender.sendMessage("/motd <msg>");
+			sender.sendMessage("§3/motd §4<message>");
+			sender.sendMessage("§5Set the server MOTD");
 		}
 	}
 }

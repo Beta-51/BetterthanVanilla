@@ -40,6 +40,7 @@ public class ColoursCommand extends Command {
 	}
 //
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-
+		sender.sendMessage("§3/colours or /colors");
+		sender.sendMessage("§5Display formatting code");
 	}
 }

@@ -23,6 +23,7 @@ public class CraftingCommand extends Command {
 	}
 //
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-
+		sender.sendMessage("§3/cb");
+		sender.sendMessage("§5Opens a crafting table.");
 	}
 }

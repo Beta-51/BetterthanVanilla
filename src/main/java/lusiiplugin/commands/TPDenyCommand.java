@@ -19,6 +19,9 @@ public class TPDenyCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
+		sender.sendMessage("§3/tpno §4[username]");
+		sender.sendMessage("§5Deny a teleport request, optionally specify a player");
+		sender.sendMessage("§5for multiple requests");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {

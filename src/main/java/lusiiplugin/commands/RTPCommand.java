@@ -3,15 +3,12 @@ package lusiiplugin.commands;
 import lusiiplugin.LusiiPlugin;
 import lusiiplugin.utils.PlayerTPInfo;
 import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.item.ItemStack;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 import net.minecraft.core.net.packet.*;
-import net.minecraft.core.player.inventory.Container;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class RTPCommand extends Command {
@@ -40,12 +37,12 @@ public class RTPCommand extends Command {
 			return true;
 		}
 		Random r = new Random();
-		int randX = r.nextInt() * (25000 + 25000 + 1) - 25000;
+		int randX = r.nextInt() * (25000 + 25000 + 1) - 25000; // (r * 50001) - 25000
 		int randZ = r.nextInt() * (25000 + 25000 + 1) - 25000;
 
 		tpInfo.update(p);
 
-		LusiiPlugin.teleport(p, randX, 256, randZ);
+		LusiiPlugin.teleport(p, randX, 256, randZ, p.dimension);
 
 		EntityPlayerMP mp = (EntityPlayerMP) p;
 		mp.playerNetServerHandler.sendPacket(
@@ -71,6 +68,7 @@ public class RTPCommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-
+		sender.sendMessage("§3/rtp");
+		sender.sendMessage("§5Randomly teleport yourself great distances");
 	}
 }

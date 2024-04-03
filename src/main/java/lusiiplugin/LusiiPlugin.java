@@ -260,10 +260,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		getTPInfo(p).update(p);
 	}
 
-	public static void teleport(EntityPlayer p, double x, double y, double z) {
-		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
-		s.teleport(x, y, z);
-		p.moveTo(x, y, z, p.yRot, p.xRot);
+	public static void teleport(EntityPlayer p, double x, double y, double z, int dimension) {
+		teleport(p, new HomePosition(x, y, z, dimension));
 	}
 
 	public static void teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
@@ -277,19 +275,13 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		if (startPlayer.dimension != endPlayer.dimension) {
 			EntityPlayerMP mp = (EntityPlayerMP) startPlayer;
 			MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, endPlayer.dimension);
-			mp.playerNetServerHandler.sendPacket(new Packet9Respawn((byte) endPlayer.dimension, (byte) 0));
+			startHandle.sendPacket(new Packet9Respawn((byte) endPlayer.dimension, (byte) 0));
 		}
 		startHandle.teleport(x, y, z);
 		startPlayer.moveTo(x, y, z, yr, xr);
 		// Show the teleported player to the accepting player instantly
 		// instead of waiting on the server to send it
 		endHandle.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
-	}
-
-	public static void teleport(EntityPlayer p, Vec3d pos) {
-		NetServerHandler s = ((EntityPlayerMP) p).playerNetServerHandler;
-		s.teleportAndRotate(pos.xCoord, pos.yCoord, pos.zCoord, p.yRot, p.xRot);
-		p.moveTo( pos.xCoord, pos.yCoord, pos.zCoord, p.yRot, p.xRot);
 	}
 
 	public static void teleport(EntityPlayer p, HomePosition h) {
