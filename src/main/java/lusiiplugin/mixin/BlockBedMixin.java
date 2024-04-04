@@ -21,13 +21,14 @@ public class BlockBedMixin extends Block {
 	@Inject(
 		method = "blockActivated(Lnet/minecraft/core/world/World; I I I Lnet/minecraft/core/entity/player/EntityPlayer;) Z",
 		at = @At(value = "INVOKE",
-			target = "Lnet/minecraft/core/world/type/WorldType;mayRespawn()Z",
-			shift = At.Shift.AFTER, by = 1
+			target = "Lnet/minecraft/core/world/World;setBlockWithNotify(IIII)Z",
+			shift = At.Shift.BEFORE
 		),
 		cancellable = true
 	)
 	public void bedBoomStop(World world, int x, int y, int z, EntityPlayer player, CallbackInfoReturnable<Boolean> cir) {
 		if (LusiiPlugin.disableBedExplosion) {
+			player.addChatMessage("§1You may not sleep here.");
 			cir.setReturnValue(true);
 		}
 	}
