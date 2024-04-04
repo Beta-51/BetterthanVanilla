@@ -82,6 +82,22 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		}
 	}
 
+	@Inject(
+		method = "handleEntityAction",
+		at = @At(
+			value = "INVOKE",
+			target = "Lnet/minecraft/server/entity/player/EntityPlayerMP;setSneaking(Z)V",
+			ordinal = 0,
+			shift = At.Shift.BEFORE
+		)
+	)
+	public void handlePlayerRideEject(Packet19EntityAction packet, CallbackInfo ci) {
+		if (this.playerEntity.vehicle instanceof EntityPlayer) {
+			this.playerEntity.noPhysics = false;
+			this.playerEntity.collision = true;
+		}
+	}
+
 	@Redirect(
 		method = "handleFlying",
 		at = @At(
@@ -94,22 +110,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 			self.teleportAndRotate(this.lastPosX, this.lastPosY, this.lastPosZ, this.playerEntity.yRot, this.playerEntity.xRot);
 		} else {
 			self.kickPlayer(msg);
-		}
-	}
-
-	@Inject(
-		method = "handleEntityAction",
-		at = @At(
-			value = "INVOKE",
-			target = "Lnet/minecraft/server/entity/player/EntityPlayerMP;setSneaking(Z)V",
-			ordinal = 0,
-			shift = At.Shift.BEFORE
-		)
-	)
-	public void handlePlayerRidePlayer(Packet19EntityAction packet, CallbackInfo ci) {
-		if (this.playerEntity.vehicle instanceof EntityPlayer) {
-			this.playerEntity.noPhysics = false;
-			this.playerEntity.collision = true;
 		}
 	}
 

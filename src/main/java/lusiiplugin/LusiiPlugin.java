@@ -277,7 +277,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 			MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, endPlayer.dimension);
 			startHandle.sendPacket(new Packet9Respawn((byte) endPlayer.dimension, (byte) 0));
 		}
-		startHandle.teleport(x, y, z);
+		startHandle.teleportAndRotate(x, y, z, yr, xr);
 		startPlayer.moveTo(x, y, z, yr, xr);
 		// Show the teleported player to the accepting player instantly
 		// instead of waiting on the server to send it
@@ -287,11 +287,15 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static void teleport(EntityPlayer p, HomePosition h) {
 		EntityPlayerMP mp = (EntityPlayerMP) p;
 		NetServerHandler s = mp.playerNetServerHandler;
+		if (p.isPassenger()) {
+			p.addChatMessage("You can't teleport while you're a passenger.");
+			return;
+		}
 		if (p.dimension != h.dim) {
             MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, h.dim);
-			mp.playerNetServerHandler.sendPacket(new Packet9Respawn((byte) h.dim, (byte) 0));
+			s.sendPacket(new Packet9Respawn((byte) h.dim, (byte) 0));
 		}
-		s.teleport(h.x, h.y, h.z);
+		s.teleportAndRotate(h.x, h.y, h.z, p.yRot, p.xRot);
 		p.moveTo(h.x, h.y, h.z, p.yRot, p.xRot);
 	}
 

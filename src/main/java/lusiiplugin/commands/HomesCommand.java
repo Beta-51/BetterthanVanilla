@@ -30,7 +30,7 @@ public class HomesCommand extends Command {
 		}
 
 		ArrayList<String> list = homesList.get();
-		String homesString = String.join("§1, §4", list);
+		String homesString = String.join(", ", list);
 		sender.sendMessage("§1Homes: §4" + homesString);
 		return true;
 	}
