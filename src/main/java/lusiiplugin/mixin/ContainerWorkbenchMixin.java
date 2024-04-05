@@ -19,7 +19,7 @@ public class ContainerWorkbenchMixin extends Container {
 
 	@Inject(
 		method = "isUsableByPlayer(Lnet/minecraft/core/entity/player/EntityPlayer;) Z",
-		at = @At("TAIL"),
+		at = @At("HEAD"),
 		cancellable = true
 	)
 	public void craftCommand(EntityPlayer entityplayer, CallbackInfoReturnable<Boolean> cir) {
