@@ -1,7 +1,7 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
@@ -23,11 +23,6 @@ public class RTPCommand extends Command {
 		EntityPlayer p = sender.getPlayer();
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
-		if (p.isPassenger()) {
-			sender.sendMessage("§4You may not use this command as a passenger!");
-			return true;
-		}
-
 		if (p.score < LusiiPlugin.RTPCost) {
 			sender.sendMessage("§4You do not have enough points to use this command! You need §1" + (LusiiPlugin.RTPCost - p.score) + "§4 more points!");
 			return true;
@@ -47,22 +42,21 @@ public class RTPCommand extends Command {
 
 		tpInfo.update(p);
 
-		LusiiPlugin.teleport(p, randX, 256, randZ, p.dimension);
+		if (LusiiPlugin.teleport(p, randX, 256, randZ, p.dimension)) {
+            ((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
+				new Packet9Respawn((byte) p.dimension, (byte) 0)
+			);
 
-		EntityPlayerMP mp = (EntityPlayerMP) p;
-		mp.playerNetServerHandler.sendPacket(
-			new Packet9Respawn((byte) p.dimension, (byte) 0)
-		);
+			sender.sendMessage("Teleported!");
 
-		sender.sendMessage("Teleported!");
-
-		p.score -= LusiiPlugin.RTPCost;
-		p.fireImmuneTicks = 200;
-		p.onGround = false;
-		p.maxHurtTime = 200;
-		p.hurtTime = 200;
-		p.airSupply = 1000;
-		p.fallDistance = -1000;
+			p.score -= LusiiPlugin.RTPCost;
+			p.fireImmuneTicks = 200;
+			p.onGround = false;
+			p.maxHurtTime = 200;
+			p.hurtTime = 200;
+			p.airSupply = 1000;
+			p.fallDistance = -1000;
+		}
 
 		return true;
 	}

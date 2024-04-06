@@ -18,27 +18,28 @@ public final class CommandsMixin {
 	public static List<Command> commands;
 	@Inject(method = "initCommands", at = @At("TAIL"))
 	private static void initCommands(CallbackInfo ci) {
-			commands.add(new MOTDCommand());
-			commands.add(new InfoCommand());
-			commands.add(new ColoursCommand());
-			commands.add(new SethomeCommand());
-			commands.add(new DelhomeCommand());
-			commands.add(new HomeCommand());
-			commands.add(new HomesCommand());
-			commands.add(new RulesCommand());
-			commands.add(new OPChatCommand());
-			commands.add(new InvseeCommand());
-			commands.add(new CraftingCommand());
-			commands.add(new PingCommand());
-			commands.add(new RTPCommand());
-			commands.add(new CrashCommand());
-			commands.add(new PayCommand());
-			commands.add(new BackCommand());
-			commands.add(new TPAAllCommand());
-			commands.add(new TPACommand());
-			commands.add(new TPConfirmCommand());
-			commands.add(new TPDenyCommand());
-			commands.add(new TPRequestsCommand());
-			commands.add(new ConvertHomesCommand());
+		commands.add(new MOTDCommand());
+		commands.add(new InfoCommand());
+		commands.add(new ColoursCommand());
+		commands.add(new SethomeCommand());
+		commands.add(new DelhomeCommand());
+		commands.add(new HomeCommand());
+		commands.add(new HomesCommand());
+		commands.add(new RulesCommand());
+		commands.add(new OPChatCommand());
+		commands.add(new InvseeCommand());
+		commands.add(new CraftingCommand());
+		commands.add(new PingCommand());
+		commands.add(new RTPCommand());
+		commands.add(new CrashCommand());
+		commands.add(new PayCommand());
+		commands.add(new BackCommand());
+		commands.add(new TPAAllCommand());
+		commands.add(new TPAHereCommand());
+		commands.add(new TPACommand());
+		commands.add(new TPConfirmCommand());
+		commands.add(new TPDenyCommand());
+		commands.add(new TPRequestsCommand());
+		commands.add(new ConvertHomesCommand());
 	}
 }

@@ -10,9 +10,9 @@ import net.minecraft.core.net.command.CommandSender;
 
 import java.util.Objects;
 
-public class TPACommand extends Command {
-	public TPACommand() {
-		super("tpa", "tpask");
+public class TPAHereCommand extends Command {
+	public TPAHereCommand() {
+		super("tpahere", "tphere", "tph");
 	}
 
 	public boolean opRequired(String[] args) {
@@ -20,8 +20,8 @@ public class TPACommand extends Command {
 	}
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
-		sender.sendMessage("§3/tpa §4<username>");
-		sender.sendMessage("§5Request to teleport to a player");
+		sender.sendMessage("§3/tpahere §4<username>");
+		sender.sendMessage("§5Request a player to teleport to you");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
@@ -57,10 +57,10 @@ public class TPACommand extends Command {
 		}
 
 		PlayerTPInfo targettpInfo = LusiiPlugin.getTPInfo(targetPlayer);
-		boolean isOnlyRequest = targettpInfo.sendRequest(p.username, RequestType.TPA);
+		boolean isOnlyRequest = targettpInfo.sendRequest(p.username, RequestType.TPAHERE);
 		if (isOnlyRequest) {
 			sender.sendMessage("§4Sent a request to " + targetPlayer.getDisplayName());
-			targetPlayer.addChatMessage("§4" + p.username + "§1 has sent you a TP request.");
+			targetPlayer.addChatMessage("§4" + p.username + "§1 has sent you a request to teleport to them.");
 			targetPlayer.addChatMessage("§5/tpyes §1to accept, §e/tpno §1to deny.");
 		} else {
 			sender.sendMessage("§4You already have a pending request for " + target);

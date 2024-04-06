@@ -2,10 +2,9 @@ package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
 import lusiiplugin.utils.HomePosition;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
-import net.minecraft.core.util.phys.Vec3d;
 
 public class BackCommand extends Command {
 	public BackCommand() {
@@ -24,10 +23,7 @@ public class BackCommand extends Command {
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		if (sender.isConsole()) return true;
 
-		EntityPlayer p = sender.getPlayer();		if (p.isPassenger()) {
-			sender.sendMessage("§4You may not use this command as a passenger!");
-			return true;
-		}
+		EntityPlayer p = sender.getPlayer();
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
 
 		if (tpInfo.canTP() || sender.isAdmin()) {
@@ -35,9 +31,10 @@ public class BackCommand extends Command {
 				HomePosition lastPos = tpInfo.getLastPos();
 
                 tpInfo.update(p);
-				LusiiPlugin.teleport(p, lastPos);
 
-				sender.sendMessage("§4Went back.");
+				if (LusiiPlugin.teleport(p, lastPos)) {
+					sender.sendMessage("§4Went back.");
+				}
 			} else {
 				sender.sendMessage("§4You have not moved!");
 			}
