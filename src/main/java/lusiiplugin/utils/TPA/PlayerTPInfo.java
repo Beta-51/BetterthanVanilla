@@ -1,23 +1,25 @@
-package lusiiplugin.utils;
+package lusiiplugin.utils.TPA;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.HomePosition;
 import net.minecraft.core.entity.player.EntityPlayer;
-import net.minecraft.core.util.phys.Vec3d;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static lusiiplugin.utils.TPA.RequestType.*;
 
 public class PlayerTPInfo {
 	private Instant lastTPtime;
 	private HomePosition lastPos;
-	private ArrayList<String> requests;
+	private ArrayList<String> requestsOrder;
+	private HashMap<String, RequestType> requests;
 
 	public PlayerTPInfo(EntityPlayer p) {
 		lastTPtime = Instant.now().minus(Duration.ofSeconds(LusiiPlugin.TPTimeout));
-		requests = new ArrayList<>();
+		requestsOrder = new ArrayList<>();
+		requests = new HashMap<>();
 		lastPos = new HomePosition(p.x, p.y, p.z, p.dimension);
 	}
 
@@ -51,25 +53,36 @@ public class PlayerTPInfo {
 		return !(newPos.equals(lastPos));
 	}
 
-	public boolean sendRequest(String reqester) {
-		if (requests.contains(reqester)) {
+	/**
+	 * Send a teleport request from a user.
+	 * <br>
+	 * If a user with a pending request sends a new request of a diffent type (TPA vs TPAHERE)
+	 * the old request is removed and the new one is moved to the front of the list.
+	 * @param username
+	 * @return <code>true</code> if request was sent, <code>false if that user has a pending request</code>
+	 */
+	public boolean sendRequest(String username, RequestType type) {
+		if (requests.get(username) == type) {
 			return false;
 		}
-		requests.add(reqester);
+		requestsOrder.remove(username);
+		requestsOrder.add(username);
+		requests.put(username, type);
 		return true;
 	}
 
-	public boolean hasNoRequest() {
+	public boolean hasNoRequests() {
 		return requests.isEmpty();
 	}
 
-	public String getNewestRequest() {
+	public Request getNewestRequest() {
 		// Get the index of the newest request
 		int lastIndex = requests.size() - 1;
 
 		// Check if there are any requests
 		if (lastIndex >= 0) {
-			return requests.get(lastIndex);
+			String lastRequestName = requestsOrder.get(lastIndex);
+			return new Request(requests.get(lastRequestName), lastRequestName);
 		} else {
 			// Return null if there are no requests
 			return null;
@@ -77,21 +90,28 @@ public class PlayerTPInfo {
 	}
 
 	public List<String> getAllRequests() {
-		return requests;
+		ArrayList<String> out = new ArrayList<>();
+
+		for (String username : requestsOrder) {
+			out.add(new Request(requests.get(username), username).toString());
+		}
+
+		return out;
 	}
 
-	public boolean hasRequestFrom(String acceptedPlayer) {
-		return requests.contains(acceptedPlayer);
+	public boolean hasRequestFrom(String username) {
+		return requests.containsKey(username);
 	}
 
-	public void removeRequest(String removePlayer) {
-		requests.remove(removePlayer);
+	public void removeRequest(String username) {
+		requestsOrder.remove(username);
+		requests.remove(username);
 	}
 
 	// Override hashCode and equals methods for proper functioning in HashMap
 	@Override
 	public int hashCode() {
-		return Objects.hash(lastTPtime, lastPos, requests);
+		return Objects.hash(lastTPtime, lastPos, requestsOrder, requests);
 	}
 
 	@Override
@@ -112,3 +132,5 @@ public class PlayerTPInfo {
 		return true;
 	}
 }
+
+

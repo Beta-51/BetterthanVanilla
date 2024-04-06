@@ -1,11 +1,14 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.TPA.Request;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
+
+import java.util.List;
 
 public class TPRequestsCommand extends Command {
 	public TPRequestsCommand() {
@@ -27,13 +30,13 @@ public class TPRequestsCommand extends Command {
 		EntityPlayer p = sender.getPlayer();
 
 		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
-		if (tpInfo.hasNoRequest()) {
+		if (tpInfo.hasNoRequests()) {
 			sender.sendMessage("§4You don't have any requests.");
 			return true;
 		}
-		String requests = String.join("§1, §4", tpInfo.getAllRequests());
+		String requests = String.join(", ", tpInfo.getAllRequests());
 
-		sender.sendMessage("§1Current TP requests: §4" + requests);
+		sender.sendMessage("§1Current TP requests: " + requests);
 
 		return true;
 	}

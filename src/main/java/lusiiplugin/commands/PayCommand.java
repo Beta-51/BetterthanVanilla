@@ -34,7 +34,7 @@ public class PayCommand extends Command {
 		sendPlayer.score -= payAmount;
 		receivePlayer.score += payAmount;
 		sender.sendMessage("§1Paid §4" + receivePlayer.username + " §3" + payAmount + "§1 points.");
-		handler.sendMessageToPlayer(receivePlayer, "§4" + sendPlayer.username + "§1 has paid you §3" + payAmount + "§1 points.");
+		receivePlayer.addChatMessage("§4" + sendPlayer.username + "§1 has paid you §3" + payAmount + "§1 points.");
 		return true;
 	}
 

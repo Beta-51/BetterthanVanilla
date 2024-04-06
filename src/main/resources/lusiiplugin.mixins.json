@@ -9,6 +9,7 @@
     "BlockFireMixin",
     "BlockFluidMixin",
     "BlockTNTMixin",
+    "ChunkMixin",
     "CommandsMixin",
     "ContainerWorkbenchMixin",
     "EntityBobberMixin",

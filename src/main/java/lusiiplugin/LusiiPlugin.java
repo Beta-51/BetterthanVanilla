@@ -1,13 +1,13 @@
 package lusiiplugin;
 
 import lusiiplugin.utils.*;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockPortal;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
 import net.minecraft.core.net.packet.Packet9Respawn;
-import net.minecraft.core.util.phys.Vec3d;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 import net.minecraft.server.net.handler.NetServerHandler;
@@ -260,11 +260,16 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		getTPInfo(p).update(p);
 	}
 
-	public static void teleport(EntityPlayer p, double x, double y, double z, int dimension) {
-		teleport(p, new HomePosition(x, y, z, dimension));
+	public static boolean teleport(EntityPlayer p, double x, double y, double z, int dimension) {
+		return teleport(p, new HomePosition(x, y, z, dimension));
 	}
 
-	public static void teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
+	public static boolean teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
+		if (startPlayer.isPassenger() || endPlayer.isPassenger()) {
+			startPlayer.addChatMessage("§4You cannot teleport as, or to, a passenger!");
+			endPlayer.addChatMessage("§4You cannot teleport as, or to, a passenger!");
+			return false;
+		}
 		NetServerHandler startHandle = ((EntityPlayerMP) startPlayer).playerNetServerHandler;
 		NetServerHandler endHandle = ((EntityPlayerMP) endPlayer).playerNetServerHandler;
 		double x = endPlayer.x;
@@ -282,14 +287,15 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		// Show the teleported player to the accepting player instantly
 		// instead of waiting on the server to send it
 		endHandle.sendPacket(new Packet20NamedEntitySpawn(startPlayer));
+		return true;
 	}
 
-	public static void teleport(EntityPlayer p, HomePosition h) {
+	public static boolean teleport(EntityPlayer p, HomePosition h) {
 		EntityPlayerMP mp = (EntityPlayerMP) p;
 		NetServerHandler s = mp.playerNetServerHandler;
 		if (p.isPassenger()) {
-			p.addChatMessage("You can't teleport while you're a passenger.");
-			return;
+			p.addChatMessage("§4You can't teleport while you're a passenger.");
+			return false;
 		}
 		if (p.dimension != h.dim) {
             MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, h.dim);
@@ -297,6 +303,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		}
 		s.teleportAndRotate(h.x, h.y, h.z, p.yRot, p.xRot);
 		p.moveTo(h.x, h.y, h.z, p.yRot, p.xRot);
+		return true;
 	}
 
 	public static void vanishPlayer(String s) {

@@ -1,13 +1,13 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.TPA.Request;
+import lusiiplugin.utils.TPA.RequestType;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
-import net.minecraft.server.entity.player.EntityPlayerMP;
 
 import java.util.Objects;
 
@@ -29,53 +29,63 @@ public class TPConfirmCommand extends Command {
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		if (sender.isConsole()) return true;
 
-		EntityPlayer endPlayer = sender.getPlayer();
-		PlayerTPInfo endInfo = LusiiPlugin.getTPInfo(endPlayer);
+		EntityPlayer acceptingPlayer = sender.getPlayer();
+		PlayerTPInfo acceptInfo = LusiiPlugin.getTPInfo(acceptingPlayer);
 
-		if (endPlayer.dimension != 0) {
+		if (acceptingPlayer.dimension != 0) {
 			sender.sendMessage("§4You may only use this in the overworld!");
 			return true;
 		}
-		if (endInfo.hasNoRequest()) {
+		if (acceptInfo.hasNoRequests()) {
 			sender.sendMessage("§4You don't have any requests.");
 			return true;
 		}
 
-		String startPlayerName = endInfo.getNewestRequest();
+		Request request = acceptInfo.getNewestRequest();
+		String confirmUser = request.user;
 
 		if (args.length > 0) {
 			String target = args[0];
 			if (Objects.equals(target, "wyspr")) target = "wyspr_"; // ;p
 
-			if (endInfo.hasRequestFrom(target)) {
-				startPlayerName = target;
+			if (acceptInfo.hasRequestFrom(target)) {
+				confirmUser = target;
 			} else {
 				sender.sendMessage("§1You don't have a request from §4" + target);
 				return true;
 			}
 		}
 
-		endInfo.removeRequest(startPlayerName);
+		acceptInfo.removeRequest(confirmUser);
 
-		EntityPlayer startPlayer = handler.getPlayer(startPlayerName);
-		if (startPlayer == null) {
-			sender.sendMessage("§4" + startPlayerName + "§1 is not online.");
+		EntityPlayer requestPlayer = handler.getPlayer(confirmUser);
+		if (requestPlayer == null) {
+			sender.sendMessage("§4" + confirmUser + "§1 is not online.");
 			return true;
 		}
 
-		PlayerTPInfo startInfo = LusiiPlugin.getTPInfo(startPlayer);
-		startInfo.update(startPlayer);
+		PlayerTPInfo requestInfo = LusiiPlugin.getTPInfo(requestPlayer);
 
-		LusiiPlugin.teleport(startPlayer, endPlayer);
+		boolean didTeleport = false;
 
-		if (startPlayer.isPassenger() || endPlayer.isPassenger()) {
-			sender.sendMessage("§4You may not use this command as a passenger!");
-			return true;
+		if (request.type == RequestType.TPA) {
+			requestInfo.update(requestPlayer);
+			didTeleport = LusiiPlugin.teleport(requestPlayer, acceptingPlayer);
+			if (didTeleport) {
+				requestPlayer.addChatMessage("§1Teleported to " + acceptingPlayer.getDisplayName());
+			}
+		} else if (request.type == RequestType.TPAHERE) {
+			acceptInfo.update(acceptingPlayer);
+			didTeleport = LusiiPlugin.teleport(acceptingPlayer, requestPlayer);
+			if (didTeleport) {
+				requestPlayer.addChatMessage("§1Teleported " + acceptingPlayer.getDisplayName() + " to you");
+				acceptingPlayer.addChatMessage("§1Teleported to " + requestPlayer.getDisplayName());
+			}
 		}
 
-		startPlayer.score -= LusiiPlugin.TPACost;
-
-		handler.sendMessageToPlayer(startPlayer, "§1Teleported to " + endPlayer.getDisplayName());
+		if (didTeleport) {
+			requestPlayer.score -= LusiiPlugin.TPACost;
+		}
 
 		return true;
 	}

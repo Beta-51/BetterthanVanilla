@@ -1,7 +1,8 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerTPInfo;
+import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.TPA.Request;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
@@ -30,28 +31,29 @@ public class TPDenyCommand extends Command {
 		EntityPlayer player = sender.getPlayer();
 		PlayerTPInfo info = LusiiPlugin.getTPInfo(player);
 
-		if (info.hasNoRequest()) {
+		if (info.hasNoRequests()) {
 			sender.sendMessage("§4You don't have any requests.");
 			return true;
 		}
 
-		String denyPlayerName = info.getNewestRequest();
+		Request request = info.getNewestRequest();
+		String denyUser = request.user;
 
 		if (args.length > 0) {
 			String target = args[0];
 			if (Objects.equals(target, "wyspr")) target = "wyspr_"; // ;3
 
 			if (info.hasRequestFrom(target)) {
-				denyPlayerName = target;
+				denyUser = target;
 			} else {
 				sender.sendMessage("§1You don't have a request from §4" + target);
 				return true;
 			}
 		}
 
-		info.removeRequest(denyPlayerName);
+		info.removeRequest(denyUser);
 
-		sender.sendMessage("§1Denied TP request from §4" + denyPlayerName);
+		sender.sendMessage("§1Denied TP request from §4" + denyUser);
 		return true;
 	}
 }
