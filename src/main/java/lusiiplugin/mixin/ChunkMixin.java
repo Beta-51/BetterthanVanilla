@@ -31,11 +31,6 @@ public class ChunkMixin {
 		System.out.println("Problem entity: " + entity.getClass().getName());
 		System.out.println("Entity XYZ | entity's chunk XZ: " + entity.x + " " + entity.y  + " " + entity.z + " | " + entity.chunkCoordX + " " + entity.chunkCoordZ);
 
-		double x = this.xPosition * 16.0;
-		double y = entity.y;
-		double z = this.zPosition * 16.0;
-
-		System.out.println("Attempting to move entity to: " + x + " " + y + " " + z);
-		entity.absMoveTo(x, y, z, entity.yRot, entity.xRot);
+		((EntityMixin) entity).invokeResetPos();
 	}
 }
