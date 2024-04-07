@@ -13,6 +13,7 @@
     "CommandsMixin",
     "ContainerWorkbenchMixin",
     "EntityBobberMixin",
+    "EntityMixin",
     "EntityPlayerMixin",
     "EntityTNTMixin",
     "NetServerHandlerMixin",

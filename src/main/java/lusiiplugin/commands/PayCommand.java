@@ -38,12 +38,9 @@ public class PayCommand extends Command {
 		return true;
 	}
 
-
 	public boolean opRequired(String[] args) {
 		return false;
 	}
-
-
 
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("§3/pay §4<username> <amount>");

@@ -37,8 +37,8 @@ public class RTPCommand extends Command {
 			return true;
 		}
 		Random r = new Random();
-		int randX = r.nextInt() * (25000 + 25000 + 1) - 25000; // (r * 50001) - 25000
-		int randZ = r.nextInt() * (25000 + 25000 + 1) - 25000;
+		int randX = (int) (r.nextDouble() * 50001.0 - 25000.0);
+		int randZ = (int) (r.nextDouble() * 50001.0 - 25000.0);
 
 		tpInfo.update(p);
 
