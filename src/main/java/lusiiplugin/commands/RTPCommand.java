@@ -37,8 +37,8 @@ public class RTPCommand extends Command {
 			return true;
 		}
 		Random r = new Random();
-		int randX = (int) (r.nextDouble() * 50001.0 - 25000.0);
-		int randZ = (int) (r.nextDouble() * 50001.0 - 25000.0);
+		int randX = (int) (r.nextDouble() * 1000001.0 - 500000.0);
+		int randZ = (int) (r.nextDouble() * 1000001.0 - 500000.0);
 
 		tpInfo.update(p);
 
@@ -47,7 +47,7 @@ public class RTPCommand extends Command {
 				new Packet9Respawn((byte) p.dimension, (byte) 0)
 			);
 
-			sender.sendMessage("Teleported!");
+			sender.sendMessage("§4Teleported! §lShould you get stuck, rejoin§4.");
 
 			p.score -= LusiiPlugin.RTPCost;
 			p.fireImmuneTicks = 200;
