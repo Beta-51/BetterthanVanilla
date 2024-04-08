@@ -41,5 +41,6 @@ public final class CommandsMixin {
 		commands.add(new TPDenyCommand());
 		commands.add(new TPRequestsCommand());
 		commands.add(new ConvertHomesCommand());
+		commands.add(new TreecapToggleCommand());
 	}
 }

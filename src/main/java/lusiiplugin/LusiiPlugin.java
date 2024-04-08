@@ -132,8 +132,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	private static PlayerHomesManager homeManager;
 	public static ConfigBuilder info;
 	public static ConfigBuilder rules;
-	public static final Set<String> vanished = new HashSet();
+	public static final Set<String> vanished = new HashSet<>();
 	public static File vanishedFile;
+	public static List<String> noCapPlayers = new ArrayList<>();
 
 	@Override
 	public void onInitialize() {

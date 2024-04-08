@@ -18,7 +18,8 @@
     "EntityTNTMixin",
     "NetServerHandlerMixin",
     "NicknameCommandMixin",
-    "SpawnCommandMixin"
+    "SpawnCommandMixin",
+    "TreecapitatorMixin"
   ],
   "client": [
   ],
