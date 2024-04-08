@@ -157,6 +157,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 			instance.sendChatMessageToPlayer(this.playerEntity.username, "§e§lHey!§r You may not use obfuscated text!");
 		}
 
+		System.out.println(prefix + msg); //do not delete!
 		instance.sendEncryptedChatToAllPlayers(prefix + msg);
 	}
 
