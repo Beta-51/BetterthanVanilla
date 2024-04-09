@@ -5,15 +5,21 @@ import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
 
-import java.util.Objects;
-
 public class InfoCommand extends Command {
 	public InfoCommand() {
 		super("info");
 	}
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
-		for (String line : LusiiPlugin.info.get()) sender.sendMessage(line);
+		int page = 0;
+		if (args.length > 0) {
+			try {
+				page = Integer.parseInt(args[0]);
+			} catch (NumberFormatException ignored) {
+				// We don't need to do anything here. page = 0
+			}
+        }
+		for (String line : LusiiPlugin.info.get(page)) sender.sendMessage(line);
 		return true;
 	}
 
