@@ -132,8 +132,9 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	private static PlayerHomesManager homeManager;
 	public static ConfigBuilder info;
 	public static ConfigBuilder rules;
-	public static final Set<String> vanished = new HashSet();
+	public static final Set<String> vanished = new HashSet<>();
 	public static File vanishedFile;
+	public static List<String> noCapPlayers = new ArrayList<>();
 
 	@Override
 	public void onInitialize() {
@@ -161,7 +162,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		}
 
 		initInfo();
-//		initRules();
+		initRules();
 
 		Path saveDirPath = Paths.get(SAVE_DIR);
 		if (!Files.exists(saveDirPath)) {
@@ -181,14 +182,18 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 
 	public static void initInfo() {
-		info = new ConfigBuilder("BTVInfo.txt",
+		info = new ConfigBuilder("BTVInfo",
 			Arrays.asList(
 				"<aqua>Thanks for installing Better than Vanilla!<r>",
 				"<aqua>this is an automatically generated message<r>",
 				"<aqua>and you may customize it in the config folder!<r>",
-				"<aqua>Once you have modified this file run <lime>/info reload<r><aqua>!<r>",
+				"///  -----------------=================== INFO ===================-----------------",
 				"///",
-				"/// ---------------================= INFO SYNTAX =================--------------- ",
+				"/// - You are able to add more pages to info and rules by following this format",
+				"///     Example: /info 2 = BTVInfo2.txt",
+				"/// - These files update live so be mindful of any changes you save to the disk",
+				"///",
+				"/// -----------------================== SYNTAX ==================-----------------",
 				"///",
 				"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
 				"///",
@@ -204,13 +209,13 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 				"///             | red     | orange  | yellow | green  | blue    |",
 				"///             |---------+---------+--------+--------+---------|",
 				"///             | magenta | brown   | cyan   | lime   | aqua    |",
-				"///             |---------+---------+--------+--------+---------|",
+				"///             |---------+---------+--------+--------+---------+",
 				"///             | i = italics       | purple | pink   |",
 				"///             |-------------------+--------+--------|",
 				"///             | u = underline     | b = bold        |",
 				"///             |-------------------+-----------------|",
 				"///             | r / reset = reset | s = strike      |",
-				"///             |-------------------+-----------------|",
+				"///             |-------------------+-----------------+",
 				"///             | o = obfuscate     |",
 				"///             +-------------------+"
 			),
@@ -219,22 +224,44 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 
 	public static void initRules() {
-		rules = new ConfigBuilder("BTVRules.txt",
+		rules = new ConfigBuilder("BTVRules",
 			Arrays.asList(
 				"<aqua>Basic rules:<r>",
-				"<aqua>No cheating<r>",
-				"<aqua>No harassing<r>",
-				"<aqua>No minecraft youtuber shenanigans<r>",
-				"<aqua>You can edit these in the config!<r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"<aqua><r>",
-				"/// See BTVInfo.txt for formatting rules!"
+				"  <aqua>No cheating<r>",
+				"  <aqua>No harassing<r>",
+				"  <aqua>No minecraft youtuber shenanigans<r>",
+				"///  -----------------=================== INFO ===================-----------------",
+				"///                                                                                ",
+				"///",
+				"/// - You are able to add more pages to info and rules by following this format",
+				"///     Example: /rules 2 = BTVRules2.txt",
+				"/// - These files update live so be mindful of any changes you save to the disk",
+				"///",
+				"///  -----------------================== SYNTAX ==================-----------------",
+				"///",
+				"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
+				"///",
+				"/// - Use html like tags for formatting",
+				"///    Example: <red><b>BOLD RED<r> normal text",
+				"/// - You can escape the '<' and '>' symbols with a '\\'",
+				"///    Example: \\<blue>",
+				"///",
+				"///  Formatting tags: ",
+				"///             +-----------------------------------------------+",
+				"///             | white   | gray    | grey   | silver | black   |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | red     | orange  | yellow | green  | blue    |",
+				"///             |---------+---------+--------+--------+---------|",
+				"///             | magenta | brown   | cyan   | lime   | aqua    |",
+				"///             |---------+---------+--------+--------+---------+",
+				"///             | i = italics       | purple | pink   |",
+				"///             |-------------------+--------+--------|",
+				"///             | u = underline     | b = bold        |",
+				"///             |-------------------+-----------------|",
+				"///             | r / reset = reset | s = strike      |",
+				"///             |-------------------+-----------------+",
+				"///             | o = obfuscate     |",
+				"///             +-------------------+"
 			),
 			true
 		);

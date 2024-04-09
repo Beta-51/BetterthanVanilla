@@ -7,13 +7,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigBuilder {
-	private static Map<String, String> colorMap = new HashMap<>(24);
+	private static final Map<String, String> colorMap = new HashMap<>(24);
 	static  {
 		colorMap.put("white", "0");
 		colorMap.put("orange", "1");
@@ -45,53 +42,60 @@ public class ConfigBuilder {
 	private String fileName;
 	private List<String> defaultContent;
 	private boolean syntaxEnabled;
-
 	public ConfigBuilder(String fileName, List<String> defaultContent, boolean syntaxEnabled) {
 		this.fileName = fileName;
 		this.defaultContent = defaultContent;
 		this.syntaxEnabled = syntaxEnabled;
-		this.filePath = Paths.get(LusiiPlugin.CFG_DIR).resolve(fileName);
-		createConfig();
+		this.filePath = Paths.get(LusiiPlugin.CFG_DIR);
+		createBase();
 	}
 
-	private void createConfig() {
-		if (!Files.exists(filePath)) {
+	private void createBase() {
+		Path baseFile = filePath.resolve(fileName + ".txt");
+		if (!Files.exists(baseFile)) {
 			try {
-				System.out.println(fileName + " does not exist. Creating it for you...");
-				Files.write(filePath, defaultContent, StandardCharsets.UTF_8);
-				System.out.println("Done! Check your config folder for " + fileName);
+				System.out.println(baseFile + " does not exist. Creating it for you...");
+				Files.write(baseFile, defaultContent, StandardCharsets.UTF_8);
+				System.out.println("Done! Check your config folder for " + baseFile);
 			} catch (IOException e) {
 				System.err.println("Error creating file: " + e.getMessage());
 			}
 		}
 	}
+	public List<String> get(int pageNumber) {
+		if (pageNumber <= 1) {
+			return readFile(filePath.resolve(fileName + ".txt"));
+		}
+		return readFile(filePath.resolve(fileName + pageNumber + ".txt"));
+	}
 
-	public List<String> get() {
-		List<String> parsedLines = new ArrayList<>();
+	private List<String> readFile(Path path) {
 		try {
-			List<String> lines = Files.readAllLines(filePath, StandardCharsets.UTF_8);
+			List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
 			if (syntaxEnabled) {
-				for (String line : lines) {
-					if (line.startsWith("///")) continue; // Skip comments
-					line = parseSyntax(line);
-					parsedLines.add(line);
-				}
+				return parseSyntax(lines);
 			} else {
-				parsedLines = lines;
+				return lines;
 			}
 		} catch (IOException e) {
-			System.err.println("Error reading file: " + e.getMessage());
-			for (String line : defaultContent) {
-				if (line.startsWith("///")) continue; // Skip comments
-				line = parseSyntax(line);
-				parsedLines.add(line);
-			}
+			List<String> errorMsg = Collections.singletonList(parseTags("<orange>Page not found.<r>"));
+			return parseSyntax(errorMsg);
 		}
+	}
+
+	private List<String> parseSyntax(List<String> content) {
+		List<String> parsedLines = new ArrayList<>();
+
+		for (String line : content) {
+			if (line.startsWith("///")) continue; // Skip comments
+			line = parseTags(line);
+			parsedLines.add(line);
+		}
+
 		return parsedLines;
 	}
 
-
-	private String parseSyntax(String line) {
+	private String parseTags(String line) {
 		// Handle escaping
 		line = line.replaceAll("\\\\<", "ESCAPED_LT").replaceAll("\\\\>", "ESCAPED_GT");
 		// Process color tags
