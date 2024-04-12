@@ -32,12 +32,13 @@ public class HomeCommand extends Command {
 				sender.sendMessage("§1You do not have a bed! You should work on that!");
 				return true;
 			}
-			homePos = Optional.of(new HomePosition(b.x, b.y+0.6, b.z, 0));
+			homePos = Optional.of(new HomePosition(b.x, b.y+1.0, b.z, 0));
 		} else {
 			homePos = homes.getHomePos(homeName);
 		}
+		boolean homeNotFound = !homePos.isPresent();
 
-		if (!homePos.isPresent()) {
+		if (homeNotFound) {
 			sender.sendMessage("§1You do not have a home named: §4" + homeName);
 			sender.sendMessage("§1View your homes with: §3/homes");
 			return true;
@@ -56,15 +57,6 @@ public class HomeCommand extends Command {
 
 		return true;
 
-	}
-
-	public EntityPlayer getPlayer(CommandHandler handler, String name) {
-		EntityPlayer player = handler.getPlayer(name);
-		if (player == null) {
-			throw new CommandError("§4Player not found: §1" + name);
-		} else {
-			return player;
-		}
 	}
 
 	public boolean opRequired(String[] args) {

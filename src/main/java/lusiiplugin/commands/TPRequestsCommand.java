@@ -2,13 +2,10 @@ package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
 import lusiiplugin.utils.TPA.PlayerTPInfo;
-import lusiiplugin.utils.TPA.Request;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-
-import java.util.List;
 
 public class TPRequestsCommand extends Command {
 	public TPRequestsCommand() {

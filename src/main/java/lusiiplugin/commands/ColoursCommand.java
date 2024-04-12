@@ -8,7 +8,7 @@ public class ColoursCommand extends Command {
 	public ColoursCommand() {
 		super("colours", "colors");
 	}
-//
+
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		sender.sendMessage("$$0 outputs §0White");
 		sender.sendMessage("$$1 outputs §1Orange");
@@ -34,11 +34,11 @@ public class ColoursCommand extends Command {
 		sender.sendMessage("$$r §3resets colour to §rnormal!");
 		return true;
 	}
-//
+
 	public boolean opRequired(String[] args) {
 		return false;
 	}
-//
+
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("§3/colours or /colors");
 		sender.sendMessage("§5Display formatting code");

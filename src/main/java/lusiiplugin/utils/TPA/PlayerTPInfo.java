@@ -8,8 +8,6 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
 
-import static lusiiplugin.utils.TPA.RequestType.*;
-
 public class PlayerTPInfo {
 	private Instant lastTPtime;
 	private HomePosition lastPos;

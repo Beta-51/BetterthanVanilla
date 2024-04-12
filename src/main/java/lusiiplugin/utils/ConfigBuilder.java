@@ -38,20 +38,20 @@ public class ConfigBuilder {
 		colorMap.put("reset", "r");
 	}
 
-	private Path filePath;
-	private String fileName;
-	private List<String> defaultContent;
-	private boolean syntaxEnabled;
+	private final Path cfgPath;
+	private final String fileName;
+	private final List<String> defaultContent;
+	private final boolean syntaxEnabled;
 	public ConfigBuilder(String fileName, List<String> defaultContent, boolean syntaxEnabled) {
 		this.fileName = fileName;
 		this.defaultContent = defaultContent;
 		this.syntaxEnabled = syntaxEnabled;
-		this.filePath = Paths.get(LusiiPlugin.CFG_DIR);
+		this.cfgPath = Paths.get(LusiiPlugin.CFG_DIR);
 		createBase();
 	}
 
 	private void createBase() {
-		Path baseFile = filePath.resolve(fileName + ".txt");
+		Path baseFile = cfgPath.resolve(fileName + ".txt");
 		if (!Files.exists(baseFile)) {
 			try {
 				System.out.println(baseFile + " does not exist. Creating it for you...");
@@ -64,9 +64,9 @@ public class ConfigBuilder {
 	}
 	public List<String> get(int pageNumber) {
 		if (pageNumber <= 1) {
-			return readFile(filePath.resolve(fileName + ".txt"));
+			return readFile(cfgPath.resolve(fileName + ".txt"));
 		}
-		return readFile(filePath.resolve(fileName + pageNumber + ".txt"));
+		return readFile(cfgPath.resolve(fileName + pageNumber + ".txt"));
 	}
 
 	private List<String> readFile(Path path) {
