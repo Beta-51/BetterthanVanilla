@@ -47,7 +47,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	public static int addedTicksCatchable;
 	public static int maxHomes;
 	public static boolean disableBedExplosion;
-	public static boolean signEdit;
 	public static boolean headSit;
 	public static boolean colourChat;
 	public static boolean greenText;
@@ -88,7 +87,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("Commands.RTPCost","Amount of points that RTP will take on use. 0 to disable (Not recommended, easily spammable)", 1000);
 		toml.addEntry("Commands.NickLength","Nickname length limit, default = 16", 16);
 		toml.addCategory("PlayerUtils");
-		toml.addEntry("PlayerUtils.signEdit", "Allows players to edit signs by sneaking when breaking a sign and replacing it.", true);
 		toml.addEntry("PlayerUtils.headSit", "Allows players to sit on eachothers' heads when holding nothing in their hand.", false);
 		toml.addEntry("PlayerUtils.colourChat", "Allows players to use $$ as colour code for colourful chatting, obfuscation is disabled.", true);
 		toml.addEntry("PlayerUtils.greenText", "Allows players to turn their text green by putting '>' at the start of their messages.", true);
@@ -120,7 +118,6 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		TPACost = CONFIG.getInt("Commands.TPACost");
 		TPTimeout = CONFIG.getInt("Commands.TPTimeout");
 		NickLength = CONFIG.getInt("Commands.NickLength");
-		signEdit = CONFIG.getBoolean("PlayerUtils.signEdit");
 		headSit = CONFIG.getBoolean("PlayerUtils.headSit");
 		colourChat = CONFIG.getBoolean("PlayerUtils.colourChat");
 		greenText = CONFIG.getBoolean("PlayerUtils.greenText");

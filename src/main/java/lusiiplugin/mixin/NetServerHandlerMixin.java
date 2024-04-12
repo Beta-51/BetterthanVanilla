@@ -166,36 +166,6 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
 		if (worldserver.isBlockLoaded(packet.xPosition, packet.yPosition, packet.zPosition)) {
 			TileEntity tileentity = worldserver.getBlockTileEntity(packet.xPosition, packet.yPosition, packet.zPosition);
-			if (tileentity instanceof TileEntitySign) {
-				if (!((TileEntitySign) tileentity).getIsEditable() && LusiiPlugin.signEdit) {
-					TileEntitySign tileentitysign = (TileEntitySign) tileentity;
-					worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
-
-					if (this.playerEntity.distanceToSqr(tileentitysign.x + 0.5, tileentitysign.y + 0.5, tileentitysign.z + 0.5) > 50.0) {
-						this.mcServer.playerList.sendChatMessageToPlayer(this.playerEntity.username, "Too far away!");
-						System.out.println(this.playerEntity.username + " tried to edit a sign at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5 + " but was too far away.");
-						return;
-					}
-
-					for (int i = 0; i < 4; i++) {
-						if (!Objects.equals(packet.signLines[i], "")) {
-							System.out.println("Original line" + i + ": \"" + tileentitysign.signText[i] + "\" Edited to: \"" + packet.signLines[i] + "\" by " + this.playerEntity.username + " at " + tileentitysign.x + 0.5 + ", " + tileentitysign.y + 0.5 + ", " + tileentitysign.z + 0.5);
-							tileentitysign.signText[i] = packet.signLines[i];
-						}
-					}
-
-					if (packet.picture != tileentitysign.getPicture().getId()) {
-						tileentitysign.setPicture(EnumSignPicture.values()[packet.picture]);
-					}
-					if (packet.color != tileentitysign.getColor().id) {
-						tileentitysign.setColor(TextFormatting.FORMATTINGS[packet.color]);
-					}
-
-
-					worldserver.markBlockNeedsUpdate(packet.xPosition, packet.yPosition, packet.zPosition);
-					return;
-				}
-			}
 
 			int l;
 			int i;
@@ -232,78 +202,12 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 
 				tileEntity.setColor(TextFormatting.FORMATTINGS[packet.color]);
 				tileEntity.setPicture(EnumSignPicture.values()[packet.picture]);
-				tileEntity.setIsEditable(true);
 				tileEntity.onInventoryChanged();
 				worldserver.markBlockNeedsUpdate(i, y, l);
 			}
 		}
 
 	}
-
-
-
-    @Overwrite
-	public void handleUpdateFlag(Packet141UpdateFlag packet) {
-		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
-		if (worldserver.isBlockLoaded(packet.x, packet.y, packet.z)) {
-			TileEntity tileentity = worldserver.getBlockTileEntity(packet.x, packet.y, packet.z);
-			if (this.playerEntity.distanceToSqr(packet.x + 0.5,packet.y + 0.5,packet.z + 0.5) > 55.0) {
-				return;
-			}
-
-			if (tileentity instanceof TileEntityFlag) {
-				TileEntityFlag tileentityflag = (TileEntityFlag)tileentity;
-				if (!Objects.equals(tileentityflag.owner, "")) {
-					if (!Objects.equals(packet.owner, tileentityflag.owner)) {
-						//System.out.println("."+packet.owner + ". ." + tileentityflag.owner + ".");
-						this.mcServer.playerList.sendChatMessageToPlayer(packet.owner,"§e§lHey!§r You may not do that!");
-						return;
-					}
-				}
-
-				tileentityflag.owner = packet.owner;
-				if (packet.owner.length() > 24) return;
-				for(int i = 0; i < packet.owner.length(); ++i) {
-					char c = packet.owner.charAt(i);
-					if (ChatAllowedCharacters.ALLOWED_CHARACTERS.indexOf(c) < 0) {
-						return;
-					}
-				}
-				for (int i = 0; i < 3; i++) {
-					if (tileentityflag.items[i] == null) {continue;}
-					if (tileentityflag.items[i].getItem() != Item.dye) {
-						worldserver.setBlock(packet.x, packet.y, packet.z,0);
-					} else {
-						if (tileentityflag.items[i].getMetadata() > 15 || tileentityflag.items[i].getMetadata() < 0) {
-							worldserver.setBlock(packet.x, packet.y, packet.z,0);
-						}
-					}
-				}
-
-				System.arraycopy(packet.flagColors, 0, tileentityflag.flagColors, 0, tileentityflag.flagColors.length);
-				worldserver.markBlockNeedsUpdate(packet.x, packet.y, packet.z);
-			}
-		}
-	}
-
-
-
-
-	//			if (this.playerEntity.getHeldItem() != null) {
-	//				if (this.playerEntity.getHeldItem().getMetadata() < 0) {
-	//					if (this.playerEntity.getHeldItem().getMetadata() > 15 && this.playerEntity.getHeldItem() == Item.dye.getDefaultStack()) {
-	//						this.mcServer.configManager.sendChatMessageToPlayer(playerEntity.username, "Illegal colour! meta: " + this.playerEntity.getHeldItem().getMetadata());
-	//						this.playerEntity.getHeldItem().setMetadata(0);
-	//						return;
-	//					}
-	//					this.mcServer.configManager.sendChatMessageToPlayer(playerEntity.username, "Illegal item! meta: " + this.playerEntity.getHeldItem().getMetadata());
-	//					this.playerEntity.getHeldItem().setMetadata(0);
-	//					return;
-	//				}
-	//			}
-
-
-
 	@Overwrite
 	public void handlePlace(Packet15Place packet) {
 		WorldServer worldserver = this.mcServer.getDimensionWorld(this.playerEntity.dimension);
