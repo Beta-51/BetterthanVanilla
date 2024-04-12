@@ -14,20 +14,17 @@ import java.util.HashMap;
 import java.util.List;
 
 public class PlayerHomesManager {
-	private HashMap<String, PlayerHomes> allPlayerHomes;
-	private Path filePath;
+	private HashMap<String, PlayerHomes> allPlayerHomes = new HashMap<>();
+	private final Path filePath = Paths.get(LusiiPlugin.SAVE_DIR).resolve("homes.ser");
 
 	public PlayerHomesManager() {
-		filePath = Paths.get(LusiiPlugin.SAVE_DIR).resolve("homes.ser");
-		allPlayerHomes = new HashMap<>();
-
 		if (Files.exists(filePath)) {
 			try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(filePath))) {
 				allPlayerHomes = (HashMap<String, PlayerHomes>) ois.readObject();
 				System.out.println("Homes loaded.");
 			} catch (IOException | ClassNotFoundException e) {
 				LusiiPlugin.LOGGER.error("Could not load homes from file", e);
-				System.out.println("Could not load homes from file");
+				System.out.println("Could not load homes from file" + e);
 			}
 		} else {
 			save();
@@ -39,7 +36,7 @@ public class PlayerHomesManager {
 			oos.writeObject(allPlayerHomes);
 			System.out.println("Player home data saved to disk.");
 		} catch (IOException ignored) {
-			LusiiPlugin.LOGGER.warn("Chunk claims failed to save to disk! This is a major issue if you do not want griefing!");
+			LusiiPlugin.LOGGER.warn("Player homes failed to save to disk! This is a major issue if you do not want griefing!");
 		}
 	}
 
