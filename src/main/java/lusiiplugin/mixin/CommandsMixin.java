@@ -17,7 +17,7 @@ public final class CommandsMixin {
 	@Shadow
 	public static List<Command> commands;
 	@Inject(method = "initCommands", at = @At("TAIL"))
-	private static void initCommands(CallbackInfo ci) {
+	private static void lusiiCommands(CallbackInfo ci) {
 		commands.add(new MOTDCommand());
 		commands.add(new InfoCommand());
 		commands.add(new ColoursCommand());
