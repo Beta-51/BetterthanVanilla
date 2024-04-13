@@ -16,6 +16,7 @@
     "EntityMixin",
     "EntityPlayerMixin",
     "EntityTNTMixin",
+    "HelpCommandMixin",
     "NetServerHandlerMixin",
     "NicknameCommandMixin",
     "PlayerManagerMixin",
