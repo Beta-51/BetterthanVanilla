@@ -3,10 +3,7 @@ package lusiiplugin.utils;
 import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.entity.player.EntityPlayer;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,5 +99,14 @@ public class PlayerHomesManager {
 
 	public PlayerHomes getPlayerHomes(EntityPlayer p) {
 		return allPlayerHomes.computeIfAbsent(p.username, k -> PlayerHomes.blank());
+	}
+
+	public boolean transferHomes(String oldPlayer, String newPlayer) {
+		PlayerHomes homes = allPlayerHomes.get(oldPlayer);
+		if (homes == null) {
+			return false;
+		}
+		allPlayerHomes.put(newPlayer, homes);
+		return true;
 	}
 }
