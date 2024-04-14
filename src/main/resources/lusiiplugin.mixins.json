@@ -19,7 +19,7 @@
     "HelpCommandMixin",
     "NetServerHandlerMixin",
     "NicknameCommandMixin",
-    "PlayerManagerMixin",
+    "NetLoginHandlerMixin",
     "SpawnCommandMixin",
     "TreecapitatorMixin"
   ],
