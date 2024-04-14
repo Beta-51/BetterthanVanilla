@@ -25,6 +25,7 @@ public final class CommandsMixin {
 		commands.add(new DelhomeCommand());
 		commands.add(new HomeCommand());
 		commands.add(new HomesCommand());
+		commands.add(new TransferHomesCommand());
 		commands.add(new RulesCommand());
 		commands.add(new OPChatCommand());
 		commands.add(new InvseeCommand());

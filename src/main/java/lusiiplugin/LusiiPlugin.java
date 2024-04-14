@@ -276,6 +276,10 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		homeManager.save();
 	}
 
+	public static boolean transferHomes(String oldPlayer, String newPlayer) {
+		return homeManager.transferHomes(oldPlayer, newPlayer);
+	}
+
 	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
 		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
 	}
