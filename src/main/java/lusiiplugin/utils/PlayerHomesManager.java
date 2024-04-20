@@ -1,112 +1,47 @@
 package lusiiplugin.utils;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lusiiplugin.LusiiPlugin;
-import net.minecraft.core.entity.player.EntityPlayer;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class PlayerHomesManager {
-	private HashMap<String, PlayerHomes> allPlayerHomes = new HashMap<>();
+	public HashMap<String, PlayerHomes> allPlayerHomes = new HashMap<>();
 	private final Path filePath = Paths.get(LusiiPlugin.SAVE_DIR).resolve("homes.ser");
 
 	public PlayerHomesManager() {
 		if (Files.exists(filePath)) {
 			try (ObjectInputStream ois = new ObjectInputStream(Files.newInputStream(filePath))) {
 				allPlayerHomes = (HashMap<String, PlayerHomes>) ois.readObject();
-				System.out.println("Homes loaded.");
-			} catch (IOException | ClassNotFoundException e) {
-				LusiiPlugin.LOGGER.error("Could not load homes from file", e);
-				System.out.println("Could not load homes from file" + e);
-			}
-		} else {
-			save();
-		}
-	}
+				allPlayerHomes.forEach((username, value) -> {
+					System.out.println(username + ": " + value.userHomes.toString());
+					File dataDir = Paths.get(LusiiPlugin.SAVE_DIR, username).toFile();
 
-	public void save() {
-		try (ObjectOutputStream oos = new ObjectOutputStream(Files.newOutputStream(filePath))) {
-			oos.writeObject(allPlayerHomes);
-			System.out.println("Player home data saved to disk.");
-		} catch (IOException ignored) {
-			LusiiPlugin.LOGGER.warn("Player homes failed to save to disk! This is a major issue if you do not want griefing!");
-		}
-	}
-
-	public void importOldHomes() {
-		File playersDir = new File("world/players");
-		File homesDir = new File("player-homes");
-
-		if (!homesDir.exists()) {
-			System.out.println("No old homes found");
-			return;
-		}
-		System.out.println("Migrating homes...");
-
-
-		// 1. Read Player Usernames
-		for (File playerFile : playersDir.listFiles()) {
-			String username = playerFile.getName().replace(".dat", "");
-
-			// 2. Read Home Files
-			PlayerHomes ph = PlayerHomes.blank();
-			for (File homeFile : homesDir.listFiles()) {
-				// Trim the filename to remove any leading or trailing whitespace
-				String fileName = homeFile.getName().trim();
-				if (fileName.startsWith(username)) {
-					// remove ".txt" and trailing spaces
-					String homeName = fileName.substring(username.length(), homeFile.getName().length() - 4).trim();
-					if (homeName.equals("bed")) {
-						homeName = "bedOld";
+					if (!dataDir.exists()) {
+						dataDir.mkdir();
 					}
-					if (homeName.isEmpty()) {
-						homeName = "home";
-					}
-					List<String> lines;
+
+					Gson gson = new GsonBuilder().setPrettyPrinting().create();
+					String json = gson.toJson(value.userHomes);
 					try {
-						lines = Files.readAllLines(Paths.get(homeFile.getPath()));
+						Path homeFile = new File(dataDir, "homes.json").toPath();
+						Files.write(homeFile, json.getBytes(StandardCharsets.UTF_8));
 					} catch (IOException e) {
-						throw new RuntimeException(e);
+						System.err.println("Error writing file: " + e.getMessage());
 					}
-					if (lines.size() >= 4) {
-						double x = Double.parseDouble(lines.get(0));
-						double y = Double.parseDouble(lines.get(1));
-						double z = Double.parseDouble(lines.get(2));
-						int dim = Integer.parseInt(lines.get(3));
-						System.out.println(username + " " + homeName + " " + x + " " + y + " " + z);
-						ph.addHome(homeName, x, y, z, dim);
-					}
-				}
+				});
+			} catch (IOException | ClassNotFoundException e) {
 			}
-
-			// 3. Write to HashMap
-			if (ph.getAmount() > 0) {
-				allPlayerHomes.put(username, ph);
-			}
+			try {
+				Files.move(filePath, filePath.resolveSibling("old_homes.ser"));
+			} catch (IOException e) {}
 		}
-
-		if (!homesDir.renameTo(new File("player-homes-old"))) {
-			System.err.println("Failed to rename the player-homes directory.");
-		}
-
-		// 4. Save to disk
-		save();
 	}
 
-	public PlayerHomes getPlayerHomes(EntityPlayer p) {
-		return allPlayerHomes.computeIfAbsent(p.username, k -> PlayerHomes.blank());
-	}
-
-	public boolean transferHomes(String oldPlayer, String newPlayer) {
-		PlayerHomes homes = allPlayerHomes.get(oldPlayer);
-		if (homes == null) {
-			return false;
-		}
-		allPlayerHomes.put(newPlayer, homes);
-		return true;
-	}
 }

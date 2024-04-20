@@ -1,13 +1,13 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
-import lusiiplugin.utils.TPA.Request;
-import lusiiplugin.utils.TPA.RequestType;
+import lusiiplugin.utils.PlayerData;
+import lusiiplugin.utils.PlayerData.TPInfo.RequestType;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.Objects;
 
@@ -30,7 +30,7 @@ public class TPConfirmCommand extends Command {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer acceptingPlayer = sender.getPlayer();
-		PlayerTPInfo acceptInfo = LusiiPlugin.getTPInfo(acceptingPlayer);
+		PlayerData.TPInfo acceptInfo  = PlayerData.get(acceptingPlayer).tpInfo();
 
 		if (acceptingPlayer.dimension != 0) {
 			sender.sendMessage("§4You may only use this in the overworld!");
@@ -41,8 +41,8 @@ public class TPConfirmCommand extends Command {
 			return true;
 		}
 
-		Request request = acceptInfo.getNewestRequest();
-		String confirmUser = request.user;
+		Pair<String, RequestType> request = acceptInfo.getNewestRequest();
+		String confirmUser = request.getKey();
 
 		if (args.length > 0) {
 			String target = args[0];
@@ -64,18 +64,19 @@ public class TPConfirmCommand extends Command {
 			return true;
 		}
 
-		PlayerTPInfo requestInfo = LusiiPlugin.getTPInfo(requestPlayer);
+		PlayerData.TPInfo requestInfo  = PlayerData.get(requestPlayer).tpInfo();
 
 		boolean didTeleport = false;
+		RequestType requestType = request.getValue();
 
-		if (request.type == RequestType.TPA) {
-			requestInfo.update(requestPlayer);
+		if (requestType == RequestType.TPA) {
+			requestInfo.update();
 			didTeleport = LusiiPlugin.teleport(requestPlayer, acceptingPlayer);
 			if (didTeleport) {
 				requestPlayer.addChatMessage("§1Teleported to " + acceptingPlayer.getDisplayName());
 			}
-		} else if (request.type == RequestType.TPAHERE) {
-			acceptInfo.update(acceptingPlayer);
+		} else if (requestType == RequestType.TPAHERE) {
+			acceptInfo.update();
 			didTeleport = LusiiPlugin.teleport(acceptingPlayer, requestPlayer);
 			if (didTeleport) {
 				requestPlayer.addChatMessage("§1Teleported " + acceptingPlayer.getDisplayName() + " to you");

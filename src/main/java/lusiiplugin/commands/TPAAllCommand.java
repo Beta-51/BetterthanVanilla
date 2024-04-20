@@ -1,8 +1,7 @@
 package lusiiplugin.commands;
 
-import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
-import lusiiplugin.utils.TPA.RequestType;
+import lusiiplugin.utils.PlayerData;
+import lusiiplugin.utils.PlayerData.TPInfo.RequestType;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
@@ -33,8 +32,8 @@ public class TPAAllCommand extends Command {
 		for (EntityPlayerMP p : players) {
 			if (Objects.equals(p.username, destUser)) continue;
 
-			PlayerTPInfo targettpInfo = LusiiPlugin.getTPInfo(p);
-			boolean isOnlyRequest = targettpInfo.sendRequest(destUser, RequestType.TPAHERE);
+			PlayerData playerData = PlayerData.get(p);
+			boolean isOnlyRequest = playerData.tpInfo().sendRequest(destUser, RequestType.TPAHERE);
 			if (isOnlyRequest) {
 				p.addChatMessage("§4" + destUser + "§1 has sent you a request to teleport to them.");
 				p.addChatMessage("§5/tpyes §1to accept, §e/tpno §1to deny.");

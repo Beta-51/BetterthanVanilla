@@ -1,18 +1,16 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import net.minecraft.core.net.packet.*;
-import net.minecraft.server.entity.player.EntityPlayerMP;
 
 import java.util.Random;
 
 public class RTPCommand extends Command {
-	public Random random;
+	Random r;
 	public RTPCommand() {
 		super("rtp");
 	}
@@ -21,7 +19,7 @@ public class RTPCommand extends Command {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer p = sender.getPlayer();
-		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
+		PlayerData.TPInfo tpInfo = PlayerData.get(p).tpInfo();
 
 		if (p.score < LusiiPlugin.RTPCost) {
 			sender.sendMessage("§4You do not have enough points to use this command! You need §1" + (LusiiPlugin.RTPCost - p.score) + "§4 more points!");
@@ -36,16 +34,15 @@ public class RTPCommand extends Command {
 			sender.sendMessage("§4Teleport available in §1" + waitTime + "§4 seconds.");
 			return true;
 		}
-		Random r = new Random();
 		int randX = (int) (r.nextDouble() * 1000001.0 - 500000.0);
 		int randZ = (int) (r.nextDouble() * 1000001.0 - 500000.0);
 
-		tpInfo.update(p);
+		tpInfo.update();
 
 		if (LusiiPlugin.teleport(p, randX, 256, randZ, p.dimension)) {
-            ((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
-				new Packet9Respawn((byte) p.dimension, (byte) 0)
-			);
+//            ((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
+//				new Packet9Respawn((byte) p.dimension, (byte) 0)
+//			);
 
 			sender.sendMessage("§4Teleported! §lShould you get stuck, rejoin§4.");
 

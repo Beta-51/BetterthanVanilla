@@ -1,8 +1,8 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.HomePosition;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.PlayerData;
+import lusiiplugin.utils.WorldPosition;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
 
@@ -24,13 +24,13 @@ public class BackCommand extends Command {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer p = sender.getPlayer();
-		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
+		PlayerData.TPInfo tpInfo = PlayerData.get(p).tpInfo();
 
 		if (tpInfo.canTP() || sender.isAdmin()) {
-			if (tpInfo.atNewPos(p)) {
-				HomePosition lastPos = tpInfo.getLastPos();
+			if (tpInfo.atNewPos()) {
+				WorldPosition lastPos = tpInfo.getLastPos();
 
-                tpInfo.update(p);
+                tpInfo.update();
 
 				if (LusiiPlugin.teleport(p, lastPos)) {
 					sender.sendMessage("§4Went back.");

@@ -1,16 +1,19 @@
 package lusiiplugin;
 
+import lusiiplugin.mixin.EntityPlayerMPMixin;
 import lusiiplugin.utils.*;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
 import net.fabricmc.api.ModInitializer;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.BlockPortal;
+import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.packet.Packet20NamedEntitySpawn;
+import net.minecraft.core.net.packet.Packet51MapChunk;
 import net.minecraft.core.net.packet.Packet9Respawn;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.entity.player.EntityPlayerMP;
 import net.minecraft.server.net.handler.NetServerHandler;
+import net.minecraft.server.world.WorldServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import turniplabs.halplibe.util.GameStartEntrypoint;
@@ -94,6 +97,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		toml.addEntry("ServerUtils.MOTD", "Message of the day, shows up in server list. Don't be inappropriate!", "§5§lJoin us!");
 
 		CONFIG = new TomlConfigHandler(MOD_ID, toml);
+
 		staticFire = CONFIG.getBoolean("WorldUtils.StaticFire");
 		disableBedExplosion = CONFIG.getBoolean("WorldUtils.DisableBedExplosions");
 		enableSkyDimensionPortal = CONFIG.getBoolean("WorldUtils.EnableSkyDimensionPortals");
@@ -125,35 +129,31 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 	}
 
 	public static String MOTD;
-	private static HashMap<String, PlayerTPInfo> TPInfo = new HashMap<>();
-	private static PlayerHomesManager homeManager;
 	public static ConfigBuilder info;
 	public static ConfigBuilder rules;
 	public static final Set<String> vanished = new HashSet<>();
 	public static File vanishedFile;
-	public static List<String> noCapPlayers = new ArrayList<>();
 
 	@Override
 	public void onInitialize() {
 		if (enableSkyDimensionPortal) {
 			((BlockPortal) Block.portalParadise).portalTriggerId = Block.fluidWaterFlowing.id;
-
 		}
 
 		System.out.println();
 		System.out.println("Better than Vanilla loading.");
 		System.out.println();
 
-		Path oldInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+		Path oldInfoFile = Paths.get(CFG_DIR)
 			.resolve("BetterThanVanillaInfo.txt");
-		Path newInfoFile = Paths.get(LusiiPlugin.CFG_DIR)
+		Path newInfoFile = Paths.get(CFG_DIR)
 			.resolve("BTVInfo.txt");
 
 		if (Files.exists(oldInfoFile) && !Files.exists(newInfoFile)) {
 			try {
 				Files.move(oldInfoFile, newInfoFile);
 			} catch (IOException e) {
-				System.out.println("Could not create migrate info file!");
+				System.out.println("Could not migrate info file!");
 				System.out.println("Generating new from default");
 			}
 		}
@@ -172,7 +172,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 			}
 		}
 
-		homeManager = new PlayerHomesManager();
+		new PlayerHomesManager();
 		System.out.println();
 		System.out.println("Better than Vanilla initialized.");
 		System.out.println();
@@ -184,13 +184,13 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 				"<aqua>Thanks for installing Better than Vanilla!<r>",
 				"<aqua>this is an automatically generated message<r>",
 				"<aqua>and you may customize it in the config folder!<r>",
-				"///  -----------------=================== INFO ===================-----------------",
+				"///  ----------------==================== INFO ===================-----------------",
 				"///",
 				"/// - You are able to add more pages to info and rules by following this format",
 				"///     Example: /info 2 = BTVInfo2.txt",
 				"/// - These files update live so be mindful of any changes you save to the disk",
 				"///",
-				"/// -----------------================== SYNTAX ==================-----------------",
+				"///  ----------------=================== SYNTAX ==================-----------------",
 				"///",
 				"/// - Lines staring with '///' are a comment and are not displayed to the user. ",
 				"///",
@@ -264,32 +264,8 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		);
 	}
 
-	public static void convertOldHomes() {
-		homeManager.importOldHomes();
-	}
-
-	public static PlayerHomes getPlayerHomes(EntityPlayer p) {
-		return homeManager.getPlayerHomes(p);
-	}
-
-	public static void savePlayerHomes() {
-		homeManager.save();
-	}
-
-	public static boolean transferHomes(String oldPlayer, String newPlayer) {
-		return homeManager.transferHomes(oldPlayer, newPlayer);
-	}
-
-	public static PlayerTPInfo getTPInfo(EntityPlayer p) {
-		return TPInfo.computeIfAbsent(p.username, k -> new PlayerTPInfo(p));
-	}
-
-	public static void updateTPInfo(EntityPlayer p) {
-		getTPInfo(p).update(p);
-	}
-
 	public static boolean teleport(EntityPlayer p, double x, double y, double z, int dimension) {
-		return teleport(p, new HomePosition(x, y, z, dimension));
+		return teleport(p, new WorldPosition(x, y, z, dimension));
 	}
 
 	public static boolean teleport(EntityPlayer startPlayer, EntityPlayer endPlayer) {
@@ -318,7 +294,7 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
 		return true;
 	}
 
-	public static boolean teleport(EntityPlayer p, HomePosition h) {
+	public static boolean teleport(EntityPlayer p, WorldPosition h) {
 		EntityPlayerMP mp = (EntityPlayerMP) p;
 		NetServerHandler s = mp.playerNetServerHandler;
 		if (p.isPassenger()) {
@@ -329,6 +305,22 @@ public class LusiiPlugin implements ModInitializer, GameStartEntrypoint, RecipeE
             MinecraftServer.getInstance().playerList.sendPlayerToOtherDimension(mp, h.dim);
 			s.sendPacket(new Packet9Respawn((byte) h.dim, (byte) 0));
 		}
+
+		MinecraftServer server = MinecraftServer.getInstance();
+		WorldServer world = server.getDimensionWorld(h.dim);
+		int chunkCoordX = (int)h.x >> 4;
+		int chunkCoordZ = (int)h.z >> 4;
+		int chunkX = chunkCoordX * 16;
+		int chunkZ = chunkCoordZ * 16;
+
+		world.getChunkProvider().prepareChunk(chunkCoordX, chunkCoordZ);
+		s.sendPacket(new Packet51MapChunk(chunkX, 0, chunkZ, 16, 256, 16, world));
+
+		List<TileEntity> list = world.getTileEntityList(chunkX, 0, chunkZ, chunkX + 16, 256, chunkZ + 16);
+		for (TileEntity te : list) {
+			((EntityPlayerMPMixin.Interface) mp).getTEInfo(te);
+		}
+
 		s.teleportAndRotate(h.x, h.y, h.z, p.yRot, p.xRot);
 		p.moveTo(h.x, h.y, h.z, p.yRot, p.xRot);
 		return true;

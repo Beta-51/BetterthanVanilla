@@ -1,7 +1,7 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
@@ -25,8 +25,7 @@ public class TPRequestsCommand extends Command {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer p = sender.getPlayer();
-
-		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
+		PlayerData.TPInfo tpInfo  = PlayerData.get(p).tpInfo();
 		if (tpInfo.hasNoRequests()) {
 			sender.sendMessage("§4You don't have any requests.");
 			return true;

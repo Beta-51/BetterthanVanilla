@@ -1,12 +1,10 @@
 package lusiiplugin.mixin;
 
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
 import net.minecraft.core.net.command.commands.SpawnCommand;
-import net.minecraft.core.world.World;
-import net.minecraft.core.world.chunk.ChunkCoordinates;
-import net.minecraft.server.entity.player.EntityPlayerMP;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,8 +26,9 @@ public class SpawnCommandMixin extends Command {
 		)
 	)
 	public void trackTP(CommandHandler handler, CommandSender sender, String[] args, CallbackInfoReturnable<Boolean> cir) {
-
-		LusiiPlugin.updateTPInfo(sender.getPlayer());
+		EntityPlayer player = sender.getPlayer();
+		PlayerData playerData = ((PlayerData.Interface) player).betterthanVanilla$getPlayerData();
+		playerData.tpInfo().update();
 	}
 
 	@Shadow
