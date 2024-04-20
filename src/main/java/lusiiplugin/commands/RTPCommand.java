@@ -10,7 +10,7 @@ import net.minecraft.core.net.command.CommandSender;
 import java.util.Random;
 
 public class RTPCommand extends Command {
-	Random r;
+	Random r = new Random();
 	public RTPCommand() {
 		super("rtp");
 	}
