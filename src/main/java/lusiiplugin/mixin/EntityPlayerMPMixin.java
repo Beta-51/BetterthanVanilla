@@ -19,9 +19,12 @@ public class EntityPlayerMPMixin {
 			super(world);
 		}
 
-		@Inject(method = "tick", at = @At("TAIL"))
+		@Inject(method = "tick", at = @At("HEAD"))
 		private void tickPlayerData(CallbackInfo ci) {
-			PlayerData.get(this).tick();
+			PlayerData data = PlayerData.get(this);
+			if (data != null) {
+				data.tick();
+			}
 		}
 	}
 

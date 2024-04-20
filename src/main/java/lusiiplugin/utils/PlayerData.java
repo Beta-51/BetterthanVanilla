@@ -46,6 +46,10 @@ public class PlayerData {
 		return ((Interface) player).betterthanVanilla$getPlayerData();
 	}
 
+	public static void update(EntityPlayer player) {
+		((Interface) player).betterthanVanilla$setPlayerData(player);
+	}
+
 	public Homes homes() {
 		return homes;
 	}
