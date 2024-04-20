@@ -1,15 +1,11 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerHomes;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class SethomeCommand extends Command {
 	public SethomeCommand() {
@@ -18,7 +14,7 @@ public class SethomeCommand extends Command {
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		EntityPlayer p = sender.getPlayer();
-		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
+		PlayerData.Homes homes = PlayerData.get(p).homes();
 
 		String homeName;
 		if (args.length > 0) {
@@ -39,7 +35,7 @@ public class SethomeCommand extends Command {
 
 		if (homes.setHome(p, homeName)) {
 			sender.sendMessage("§4Created home: §1" + homeName);
-			LusiiPlugin.savePlayerHomes();
+//			homes.save();
 		} else {
 			sender.sendMessage("§4You already have a home named: §1" + homeName);
 			sender.sendMessage("§4Use: §3/delhome " + homeName + "§4 to remove");
@@ -54,7 +50,9 @@ public class SethomeCommand extends Command {
 	public void sendCommandSyntax(CommandHandler handler, CommandSender sender) {
 		sender.sendMessage("§3/sethome §4[home]");
 		sender.sendMessage("§5Set a new home at your position.");
-		int homeCount = LusiiPlugin.getPlayerHomes(sender.getPlayer()).getAmount();
+		EntityPlayer p = sender.getPlayer();
+		PlayerData playerData = PlayerData.get(p);
+		int homeCount = playerData.homes().getAmount();
 		sender.sendMessage("§5Current homes: §4" + homeCount + "§1/" + LusiiPlugin.maxHomes);
 	}
 }

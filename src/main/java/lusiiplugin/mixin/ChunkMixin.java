@@ -31,6 +31,6 @@ public class ChunkMixin {
 		System.out.println("Problem entity: " + entity.getClass().getName());
 		System.out.println("Entity XYZ | entity's chunk XZ: " + entity.x + " " + entity.y  + " " + entity.z + " | " + entity.chunkCoordX + " " + entity.chunkCoordZ);
 
-		((EntityMixin) entity).invokeResetPos();
+		((IEntityMixin) entity).invokeResetPos();
 	}
 }

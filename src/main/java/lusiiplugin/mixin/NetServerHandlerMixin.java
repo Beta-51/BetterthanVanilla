@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.sugar.Local;
 import lusiiplugin.LusiiPlugin;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
-import net.minecraft.core.block.entity.TileEntityFlag;
 import net.minecraft.core.block.entity.TileEntitySign;
 import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.player.EntityPlayer;

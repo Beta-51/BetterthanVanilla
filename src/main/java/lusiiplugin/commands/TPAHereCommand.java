@@ -1,8 +1,7 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
-import lusiiplugin.utils.TPA.RequestType;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
@@ -28,7 +27,7 @@ public class TPAHereCommand extends Command {
 		if (sender.isConsole()) return true;
 
 		EntityPlayer p = sender.getPlayer();
-		PlayerTPInfo ptpInfo = LusiiPlugin.getTPInfo(p);
+		PlayerData.TPInfo ptpInfo = PlayerData.get(p).tpInfo();
 		if (p.score < LusiiPlugin.TPACost) {
 			sender.sendMessage("§4You do not have enough points to use this command! You need §1" + (LusiiPlugin.TPACost - p.score) + "§4 more points!");
 			return true;
@@ -56,8 +55,10 @@ public class TPAHereCommand extends Command {
 			return true;
 		}
 
-		PlayerTPInfo targettpInfo = LusiiPlugin.getTPInfo(targetPlayer);
-		boolean isOnlyRequest = targettpInfo.sendRequest(p.username, RequestType.TPAHERE);
+		PlayerData targetPlayerData = ((PlayerData.Interface) targetPlayer).betterthanVanilla$getPlayerData();
+		PlayerData.TPInfo targettpInfo = targetPlayerData.tpInfo();
+
+		boolean isOnlyRequest = targettpInfo.sendRequest(p.username, PlayerData.TPInfo.RequestType.TPAHERE);
 		if (isOnlyRequest) {
 			sender.sendMessage("§4Sent a request to " + targetPlayer.getDisplayName());
 			targetPlayer.addChatMessage("§4" + p.username + "§1 has sent you a request to teleport to them.");

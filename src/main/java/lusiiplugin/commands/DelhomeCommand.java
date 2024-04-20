@@ -1,15 +1,11 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.PlayerHomes;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.Command;
 import net.minecraft.core.net.command.CommandHandler;
 import net.minecraft.core.net.command.CommandSender;
-import net.minecraft.core.net.packet.Packet11PlayerPosition;
-import net.minecraft.server.entity.player.EntityPlayerMP;
-
-import java.io.File;
 
 public class DelhomeCommand extends Command {
 	public DelhomeCommand() {
@@ -18,7 +14,7 @@ public class DelhomeCommand extends Command {
 
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		EntityPlayer p = sender.getPlayer();
-		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
+		PlayerData.Homes homes = PlayerData.get(p).homes();
 
 		String homeName;
 		if (args.length > 0) {
@@ -35,7 +31,7 @@ public class DelhomeCommand extends Command {
 
 		if (homes.delHome(homeName)) {
 			sender.sendMessage("§4Removed home: §1" + homeName);
-			LusiiPlugin.savePlayerHomes();
+			homes.save();
 		} else {
 			sender.sendMessage("§4You don't have a home named: §1" + homeName);
 			sender.sendMessage("§4Use: §3/sethome " + homeName + "§4 to create");

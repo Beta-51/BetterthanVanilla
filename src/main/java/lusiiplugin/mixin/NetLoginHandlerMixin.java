@@ -18,10 +18,11 @@ public abstract class NetLoginHandlerMixin {
 
 	@Inject(method = "doLogin", at = @At("TAIL"))
 	private void welcomeMessage(Packet1Login packet1login, CallbackInfo ci) {
-		File playerData = new File("world/players/" + packet1login.username + ".dat");
+		String username = packet1login.username;
+		File playerData = new File("world/players/" + username + ".dat");
 
 		if (!playerData.exists()) {
-			this.mcServer.serverCommandHandler.sendMessageToAllPlayers("§4Welcome §3" + packet1login.username + "§4 to the server!" );
+			this.mcServer.serverCommandHandler.sendMessageToAllPlayers("§4Welcome §3" + username + "§4 to the server!" );
 		}
 	}
 }

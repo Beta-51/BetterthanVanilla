@@ -6,21 +6,14 @@ import net.minecraft.core.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 
 @Mixin(value = EntityPlayer.class, remap = false)
 public class EntityPlayerMixin extends EntityLiving {
-
 	@Shadow
 	protected boolean isDwarf;
 
 	public EntityPlayerMixin(World world) {
 		super(world);
-	}
-
-	@Shadow
-	protected void init() {
-
 	}
 
 	@Overwrite

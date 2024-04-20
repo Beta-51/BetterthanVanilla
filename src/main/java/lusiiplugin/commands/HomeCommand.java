@@ -1,9 +1,7 @@
 package lusiiplugin.commands;
 
 import lusiiplugin.LusiiPlugin;
-import lusiiplugin.utils.HomePosition;
-import lusiiplugin.utils.PlayerHomes;
-import lusiiplugin.utils.TPA.PlayerTPInfo;
+import lusiiplugin.utils.*;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.net.command.*;
 import net.minecraft.core.world.chunk.ChunkCoordinates;
@@ -16,8 +14,9 @@ public class HomeCommand extends Command {
 	}
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] args) {
 		EntityPlayer p = sender.getPlayer();
-		PlayerHomes homes = LusiiPlugin.getPlayerHomes(p);
-		PlayerTPInfo tpInfo = LusiiPlugin.getTPInfo(p);
+		PlayerData playerData = PlayerData.get(p);
+		PlayerData.Homes homes = playerData.homes();
+		PlayerData.TPInfo tpInfo = playerData.tpInfo();
 		String homeName;
 		if (args.length > 0) {
 			homeName = String.join(" ", args);
@@ -25,14 +24,15 @@ public class HomeCommand extends Command {
 			homeName = "home";
 		}
 
-		Optional<HomePosition> homePos;
+		Optional<WorldPosition> homePos;
+
 		if (homeName.equals("bed")) {
 			ChunkCoordinates b = p.getPlayerSpawnCoordinate();
 			if (b == null) {
 				sender.sendMessage("§1You do not have a bed! You should work on that!");
 				return true;
 			}
-			homePos = Optional.of(new HomePosition(b.x, b.y+1.0, b.z, 0));
+			homePos = Optional.of(new WorldPosition(b.x, b.y+1.0, b.z, 0));
 		} else {
 			homePos = homes.getHomePos(homeName);
 		}
@@ -45,8 +45,8 @@ public class HomeCommand extends Command {
 		}
 
 		if (tpInfo.canTP() || sender.isAdmin()) {
-			tpInfo.update(p);
-			HomePosition h = homePos.get();
+			tpInfo.update();
+			WorldPosition h = homePos.get();
 			if (LusiiPlugin.teleport(p, h)) {
 				sender.sendMessage("§4Teleported to §1" + homeName);
 			}
@@ -56,7 +56,6 @@ public class HomeCommand extends Command {
 		}
 
 		return true;
-
 	}
 
 	public boolean opRequired(String[] args) {

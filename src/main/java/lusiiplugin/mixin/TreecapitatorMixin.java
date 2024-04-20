@@ -1,6 +1,6 @@
 package lusiiplugin.mixin;
 
-import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.data.gamerule.TreecapitatorHelper;
 import net.minecraft.core.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.Final;
@@ -22,7 +22,7 @@ public class TreecapitatorMixin {
 		cancellable = true
 	)
 	private void disableTreecapPerList(CallbackInfoReturnable<Boolean> cir) {
-		if (LusiiPlugin.noCapPlayers.contains(this.player.username)) {
+		if (PlayerData.get(player).treecap().isActive()) {
 			cir.setReturnValue(false);
 		}
 	}

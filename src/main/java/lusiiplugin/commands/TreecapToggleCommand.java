@@ -1,9 +1,7 @@
 package lusiiplugin.commands;
 
-import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.net.command.*;
-
-import java.util.List;
 
 public class TreecapToggleCommand extends Command {
 	public TreecapToggleCommand() {
@@ -12,14 +10,11 @@ public class TreecapToggleCommand extends Command {
 
 	@Override
 	public boolean execute(CommandHandler handler, CommandSender sender, String[] strings) {
-		List<String> noCap = LusiiPlugin.noCapPlayers;
-		String username = sender.getPlayer().username;
+		boolean treecapEnabled = PlayerData.get(sender.getPlayer()).treecap().toggle();
 
-		if (noCap.contains(username)) {
-			noCap.remove(username);
+		if (treecapEnabled) {
 			sender.sendMessage("§1Treecapitator enabled.");
 		} else {
-			noCap.add(username);
 			sender.sendMessage("§1Treecapitator disabled.");
 		}
 

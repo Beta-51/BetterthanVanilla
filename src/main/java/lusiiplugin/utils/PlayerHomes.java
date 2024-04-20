@@ -3,14 +3,11 @@ package lusiiplugin.utils;
 import net.minecraft.core.entity.player.EntityPlayer;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class PlayerHomes implements Serializable {
 	private static final long serialVersionUID = 1L; // Ensures version compatibility during deserialization
-	HashMap<String, HomePosition> userHomes;
+	public HashMap<String, HomePosition> userHomes;
 
 	private PlayerHomes() {
 		this.userHomes = new HashMap<>();
@@ -22,11 +19,6 @@ public class PlayerHomes implements Serializable {
 
 	public int getAmount() {
 		return userHomes.size();
-	}
-	public static PlayerHomes fromMap(Map<String, HomePosition> userHomes) {
-		PlayerHomes ph = new PlayerHomes();
-		ph.userHomes = (HashMap<String, HomePosition>) userHomes;
-		return ph;
 	}
 
 	/**
