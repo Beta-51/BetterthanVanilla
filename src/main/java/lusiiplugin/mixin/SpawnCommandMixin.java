@@ -27,8 +27,7 @@ public class SpawnCommandMixin extends Command {
 	)
 	public void trackTP(CommandHandler handler, CommandSender sender, String[] args, CallbackInfoReturnable<Boolean> cir) {
 		EntityPlayer player = sender.getPlayer();
-		PlayerData playerData = ((PlayerData.Interface) player).betterthanVanilla$getPlayerData();
-		playerData.tpInfo().update();
+		PlayerData.get(player).tpInfo().update();
 	}
 
 	@Shadow

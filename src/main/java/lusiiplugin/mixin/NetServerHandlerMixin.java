@@ -2,6 +2,7 @@ package lusiiplugin.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import lusiiplugin.LusiiPlugin;
+import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.block.Block;
 import net.minecraft.core.block.entity.TileEntity;
 import net.minecraft.core.block.entity.TileEntitySign;
@@ -283,6 +284,7 @@ public class NetServerHandlerMixin extends NetHandler implements ICommandListene
 			int score = this.playerEntity.score;
 			this.playerEntity = this.mcServer.playerList.recreatePlayerEntity(this.playerEntity, 0);
             this.playerEntity.score = (int) ((double) score * LusiiPlugin.deathCost);
+			PlayerData.update(this.playerEntity);
 		}
 	}
 

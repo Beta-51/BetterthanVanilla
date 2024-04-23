@@ -2,6 +2,7 @@ package lusiiplugin.mixin;
 
 import lusiiplugin.utils.PlayerData;
 import net.minecraft.core.block.entity.TileEntity;
+import net.minecraft.core.entity.Entity;
 import net.minecraft.core.entity.player.EntityPlayer;
 import net.minecraft.core.world.World;
 import net.minecraft.server.entity.player.EntityPlayerMP;
@@ -19,9 +20,17 @@ public class EntityPlayerMPMixin {
 			super(world);
 		}
 
-		@Inject(method = "tick", at = @At("TAIL"))
+		@Inject(method = "tick", at = @At("HEAD"))
 		private void tickPlayerData(CallbackInfo ci) {
-			PlayerData.get(this).tick();
+			PlayerData data = PlayerData.get(this);
+			if (data != null) {
+				data.tick();
+			}
+		}
+
+		@Inject(method = "onDeath", at = @At("HEAD"))
+		public void saveOnDeath(Entity entity, CallbackInfo ci) {
+			PlayerData.get(this).save();
 		}
 	}
 

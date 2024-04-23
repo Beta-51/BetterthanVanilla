@@ -55,8 +55,7 @@ public class TPAHereCommand extends Command {
 			return true;
 		}
 
-		PlayerData targetPlayerData = ((PlayerData.Interface) targetPlayer).betterthanVanilla$getPlayerData();
-		PlayerData.TPInfo targettpInfo = targetPlayerData.tpInfo();
+		PlayerData.TPInfo targettpInfo = PlayerData.get(targetPlayer).tpInfo();
 
 		boolean isOnlyRequest = targettpInfo.sendRequest(p.username, PlayerData.TPInfo.RequestType.TPAHERE);
 		if (isOnlyRequest) {

@@ -12,11 +12,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlayerListMixin {
 	@Inject(at = @At("TAIL"), method = "playerLoggedIn")
 	public void onLogin(EntityPlayerMP player, CallbackInfo ci) {
-		((PlayerData.Interface) player).betterthanVanilla$setPlayerData(player);
+		PlayerData.update(player);
 	}
 
 	@Inject(at = @At("TAIL"), method = "playerLoggedOut")
 	public void onLogout(EntityPlayerMP entityplayermp, CallbackInfo ci) {
-		((PlayerData.Interface) entityplayermp).betterthanVanilla$getPlayerData().save();
+		PlayerData.get(entityplayermp).save();
 	}
 }

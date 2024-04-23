@@ -10,7 +10,7 @@ import net.minecraft.core.net.command.CommandSender;
 import java.util.Random;
 
 public class RTPCommand extends Command {
-	Random r;
+	Random r = new Random();
 	public RTPCommand() {
 		super("rtp");
 	}
@@ -40,10 +40,6 @@ public class RTPCommand extends Command {
 		tpInfo.update();
 
 		if (LusiiPlugin.teleport(p, randX, 256, randZ, p.dimension)) {
-//            ((EntityPlayerMP) p).playerNetServerHandler.sendPacket(
-//				new Packet9Respawn((byte) p.dimension, (byte) 0)
-//			);
-
 			sender.sendMessage("§4Teleported! §lShould you get stuck, rejoin§4.");
 
 			p.score -= LusiiPlugin.RTPCost;
